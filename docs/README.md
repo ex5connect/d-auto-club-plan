@@ -11,6 +11,8 @@ This is the main documentation hub for the D-Auto Club project. Project-wide doc
 | [`project-overview.md`](project-overview.md) | Stable business, actor, scope, and priority summary | Confirmed product scope changes |
 | [`clarification-register.md`](clarification-register.md) | Open questions, decisions, owners, and status | A question is raised, answered, or superseded |
 | [`timeframe.md`](timeframe.md) | Six-month schedule, delivery gates, staffing assumptions, and schedule controls | Dates, scope, staffing, dependencies, or milestone forecasts change |
+| [`presentation/index.html`](presentation/index.html) | Meeting slide deck covering scope, architecture, estimates, risks, and decisions | Presentation scope or project assumptions change |
+| [`presentation/delivery-timeframe.html`](presentation/delivery-timeframe.html) | Detailed milestone, sprint, ownership, QA, and delivery timetable | Dates, tasks, staffing, or release gates change |
 
 ## Original References
 

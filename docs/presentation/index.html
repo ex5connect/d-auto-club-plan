@@ -1,0 +1,655 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>D-Auto Club — Delivery Plan &amp; Feasibility</title>
+  <style>
+    :root {
+      --bg: #08090b;
+      --panel: #111319;
+      --panel-2: #171a21;
+      --line: #2b303a;
+      --text: #f5f7fa;
+      --muted: #aeb5c2;
+      --red: #dc1733;
+      --red-2: #ff4d63;
+      --green: #42d392;
+      --amber: #ffbd4a;
+      --blue: #58a6ff;
+      --violet: #a98bff;
+      --shadow: 0 24px 80px rgba(0, 0, 0, .38);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; background: var(--bg); color: var(--text); }
+    body {
+      overflow: hidden;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: clamp(14px, 1.05vw, 20px);
+    }
+    button { font: inherit; }
+    a { color: inherit; }
+
+    .deck { position: relative; width: 100vw; height: 100vh; isolation: isolate; }
+    .deck::before {
+      content: "";
+      position: fixed;
+      inset: -30%;
+      z-index: -2;
+      background:
+        radial-gradient(circle at 15% 20%, rgba(220, 23, 51, .15), transparent 27%),
+        radial-gradient(circle at 85% 78%, rgba(88, 166, 255, .08), transparent 25%),
+        linear-gradient(135deg, #07080a, #0c0e13 55%, #08090b);
+    }
+    .deck::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      opacity: .16;
+      background-image: linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+      background-size: 42px 42px;
+      mask-image: linear-gradient(to bottom, transparent, black 20%, black 80%, transparent);
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: none;
+      padding: clamp(34px, 4.5vh, 64px) clamp(44px, 5vw, 90px) clamp(56px, 7vh, 88px);
+      overflow: auto;
+      opacity: 0;
+    }
+    .slide.active { display: flex; flex-direction: column; opacity: 1; animation: enter .35s ease both; }
+    @keyframes enter { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+    @media (prefers-reduced-motion: reduce) { .slide.active { animation: none; } * { scroll-behavior: auto !important; } }
+
+    .slide-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; margin-bottom: clamp(20px, 3vh, 38px); }
+    .eyebrow { color: var(--red-2); font-weight: 800; letter-spacing: .14em; text-transform: uppercase; font-size: .68em; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { max-width: 1150px; margin-bottom: 22px; font-size: clamp(46px, 6vw, 96px); line-height: .98; letter-spacing: -.055em; }
+    h2 { margin-bottom: 6px; font-size: clamp(32px, 3.4vw, 58px); line-height: 1.04; letter-spacing: -.04em; }
+    h3 { margin-bottom: 10px; font-size: 1.05em; }
+    .lede { max-width: 1080px; color: var(--muted); font-size: clamp(18px, 1.45vw, 27px); line-height: 1.55; }
+    .small { font-size: .78em; color: var(--muted); }
+    .muted { color: var(--muted); }
+    .accent { color: var(--red-2); }
+    .green { color: var(--green); }
+    .amber { color: var(--amber); }
+
+    .brand { display: inline-flex; align-items: center; gap: 12px; font-weight: 900; letter-spacing: -.03em; white-space: nowrap; }
+    .brand-mark { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 9px 16px 9px 9px; background: var(--red); transform: skewX(-10deg); box-shadow: 0 10px 30px rgba(220,23,51,.3); }
+    .brand-mark span { transform: skewX(10deg); font-style: italic; }
+
+    .grid { display: grid; gap: clamp(14px, 1.5vw, 24px); }
+    .cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .card {
+      min-width: 0;
+      padding: clamp(18px, 1.7vw, 28px);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: linear-gradient(145deg, rgba(24,27,34,.96), rgba(14,16,21,.96));
+      box-shadow: var(--shadow);
+    }
+    .card.flat { box-shadow: none; }
+    .card.red { border-color: rgba(255,77,99,.5); background: linear-gradient(145deg, rgba(72,14,25,.8), rgba(22,14,18,.96)); }
+    .card.green-card { border-color: rgba(66,211,146,.42); }
+    .card.amber-card { border-color: rgba(255,189,74,.45); }
+    .card.blue-card { border-color: rgba(88,166,255,.42); }
+    .card p:last-child, .card ul:last-child { margin-bottom: 0; }
+    .metric { font-size: clamp(32px, 3.1vw, 54px); line-height: 1; font-weight: 900; letter-spacing: -.05em; }
+    .metric-label { margin-top: 10px; color: var(--muted); font-size: .78em; }
+
+    .pill, .status { display: inline-flex; align-items: center; gap: 7px; width: fit-content; padding: 6px 10px; border-radius: 999px; font-size: .68em; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
+    .pill { border: 1px solid var(--line); color: var(--muted); background: rgba(255,255,255,.025); }
+    .status.confirmed { color: var(--green); background: rgba(66,211,146,.12); }
+    .status.proposed { color: var(--blue); background: rgba(88,166,255,.12); }
+    .status.open { color: var(--amber); background: rgba(255,189,74,.12); }
+
+    ul { margin: 0; padding-left: 1.2em; line-height: 1.45; }
+    li { margin: .38em 0; }
+    li::marker { color: var(--red-2); }
+    .checklist { list-style: none; padding: 0; }
+    .checklist li { position: relative; padding-left: 1.55em; }
+    .checklist li::before { content: "✓"; position: absolute; left: 0; color: var(--green); font-weight: 900; }
+    .compact li { margin: .22em 0; }
+
+    .hero-layout { display: grid; grid-template-columns: 1.15fr .85fr; gap: 5vw; align-items: center; flex: 1; }
+    .hero-visual { position: relative; min-height: 55vh; display: grid; place-items: center; }
+    .phone {
+      position: absolute;
+      width: min(24vw, 330px);
+      aspect-ratio: 9 / 18.7;
+      overflow: hidden;
+      border: 8px solid #20232b;
+      border-radius: 36px;
+      background: #090a0d;
+      box-shadow: 0 30px 80px rgba(0,0,0,.55);
+    }
+    .phone.one { left: 8%; transform: rotate(-7deg); }
+    .phone.two { right: 6%; top: 7%; transform: rotate(7deg); }
+    .phone img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+
+    .app-shot { overflow: hidden; padding: 0; min-height: 50vh; position: relative; }
+    .app-shot img { width: 100%; height: 100%; max-height: 56vh; object-fit: cover; object-position: top; display: block; opacity: .82; }
+    .app-shot::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgba(8,9,11,.95), transparent 55%); pointer-events: none; }
+    .app-shot figcaption { position: absolute; z-index: 1; left: 24px; right: 24px; bottom: 22px; font-weight: 800; }
+
+    .flow { display: flex; align-items: stretch; gap: 14px; margin-top: 8px; }
+    .flow-step { flex: 1; min-width: 0; position: relative; padding: 20px; border: 1px solid var(--line); border-radius: 16px; background: var(--panel); }
+    .flow-step:not(:last-child)::after { content: "→"; position: absolute; right: -17px; top: 50%; z-index: 2; color: var(--red-2); font-size: 28px; font-weight: 900; transform: translateY(-50%); }
+    .step-no { color: var(--red-2); font-size: .7em; font-weight: 900; letter-spacing: .1em; }
+
+    .architecture { display: grid; grid-template-columns: 1fr auto 1.15fr auto 1fr; gap: 14px; align-items: stretch; }
+    .arch-col { display: grid; gap: 12px; }
+    .arch-arrow { display: grid; place-items: center; color: var(--red-2); font-size: 32px; font-weight: 900; }
+    .arch-box { padding: 16px; border: 1px solid var(--line); border-radius: 14px; background: var(--panel); text-align: center; }
+    .arch-box.core { border-color: rgba(220,23,51,.6); background: rgba(55,11,20,.5); }
+
+    table { width: 100%; border-collapse: collapse; font-size: .77em; }
+    th, td { padding: 12px 14px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+    th { color: var(--muted); font-size: .82em; letter-spacing: .06em; text-transform: uppercase; }
+    tbody tr:last-child td { border-bottom: 0; }
+
+    .timeline { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }
+    .month { min-width: 0; padding: 16px; border: 1px solid var(--line); border-radius: 16px; background: var(--panel); }
+    .month strong { display: block; margin: 5px 0 12px; font-size: 1.12em; }
+    .month .bar { height: 6px; margin-bottom: 14px; border-radius: 999px; background: var(--red); }
+    .month:nth-child(2) .bar { background: #ff5a5f; }
+    .month:nth-child(3) .bar { background: var(--amber); }
+    .month:nth-child(4) .bar { background: var(--blue); }
+    .month:nth-child(5) .bar { background: var(--violet); }
+    .month:nth-child(6) .bar { background: var(--green); }
+
+    .risk-list { display: grid; gap: 11px; }
+    .risk { display: grid; grid-template-columns: 100px 1fr auto; gap: 16px; align-items: center; padding: 15px 18px; border: 1px solid var(--line); border-radius: 14px; background: var(--panel); }
+    .risk-level { font-weight: 900; font-size: .72em; letter-spacing: .08em; text-transform: uppercase; }
+
+    .decision { display: grid; grid-template-columns: 70px 1fr 180px; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--line); align-items: start; }
+    .decision:last-child { border-bottom: 0; }
+    .decision-id { color: var(--red-2); font-weight: 900; }
+    .owner { color: var(--muted); font-size: .75em; text-align: right; }
+
+    .quote { padding-left: 24px; border-left: 5px solid var(--red); font-size: clamp(24px, 2.2vw, 38px); line-height: 1.35; font-weight: 750; letter-spacing: -.02em; }
+    .verdict { display: grid; grid-template-columns: .9fr 1.1fr; gap: 28px; align-items: stretch; }
+    .verdict-big { display: grid; place-items: center; text-align: center; min-height: 45vh; border: 1px solid rgba(255,189,74,.45); border-radius: 24px; background: radial-gradient(circle at 50% 20%, rgba(255,189,74,.13), transparent 55%), var(--panel); }
+    .verdict-word { font-size: clamp(52px, 7vw, 105px); font-weight: 950; letter-spacing: -.07em; color: var(--amber); }
+
+    .controls { position: fixed; z-index: 50; left: 50%; bottom: 16px; transform: translateX(-50%); display: flex; align-items: center; gap: 8px; padding: 7px; border: 1px solid var(--line); border-radius: 999px; background: rgba(12,14,18,.86); backdrop-filter: blur(14px); box-shadow: var(--shadow); }
+    .control-btn { width: 38px; height: 38px; display: grid; place-items: center; border: 0; border-radius: 50%; color: var(--text); background: transparent; cursor: pointer; }
+    .control-btn:hover, .control-btn:focus-visible { outline: none; background: var(--panel-2); box-shadow: 0 0 0 2px var(--red); }
+    .counter { min-width: 76px; text-align: center; color: var(--muted); font-variant-numeric: tabular-nums; font-size: 13px; }
+    .progress { position: fixed; z-index: 51; left: 0; bottom: 0; width: 0; height: 3px; background: linear-gradient(90deg, var(--red), var(--red-2)); transition: width .25s ease; }
+    .footer-label { position: fixed; z-index: 40; left: 24px; bottom: 21px; color: #707784; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
+
+    .index-panel { position: fixed; z-index: 80; inset: 0; display: none; padding: 5vh 5vw; background: rgba(5,6,8,.92); backdrop-filter: blur(18px); overflow: auto; }
+    .index-panel.open { display: block; }
+    .index-wrap { max-width: 1280px; margin: auto; }
+    .index-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .index-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .index-item { min-height: 115px; padding: 16px; border: 1px solid var(--line); border-radius: 14px; color: var(--text); background: var(--panel); text-align: left; cursor: pointer; }
+    .index-item:hover, .index-item:focus-visible { border-color: var(--red); outline: none; }
+    .index-item .num { display: block; color: var(--red-2); font-size: .7em; font-weight: 900; margin-bottom: 8px; }
+
+    .two-column-list { columns: 2; column-gap: 34px; }
+    .two-column-list li { break-inside: avoid; }
+    .source-note { margin-top: auto; padding-top: 18px; color: #737b88; font-size: .68em; }
+
+    @media (max-width: 1100px) {
+      body { font-size: 15px; }
+      .slide { padding-left: 32px; padding-right: 32px; }
+      .cols-4 { grid-template-columns: repeat(2, 1fr); }
+      .timeline { grid-template-columns: repeat(3, 1fr); }
+      .index-grid { grid-template-columns: repeat(2, 1fr); }
+      .hero-layout, .verdict { grid-template-columns: 1fr; }
+      .hero-visual { display: none; }
+    }
+    @media (max-width: 760px) {
+      body { overflow: auto; }
+      .deck { height: auto; }
+      .slide, .slide.active { position: relative; min-height: 100vh; display: none; padding: 28px 20px 76px; }
+      .slide.active { display: flex; }
+      .cols-2, .cols-3, .cols-4, .architecture { grid-template-columns: 1fr; }
+      .arch-arrow { transform: rotate(90deg); }
+      .flow { flex-direction: column; }
+      .flow-step:not(:last-child)::after { content: "↓"; right: 50%; top: auto; bottom: -24px; transform: translateX(50%); }
+      .timeline, .index-grid { grid-template-columns: 1fr; }
+      .risk { grid-template-columns: 80px 1fr; }
+      .risk .status { grid-column: 2; }
+      .decision { grid-template-columns: 55px 1fr; }
+      .owner { grid-column: 2; text-align: left; }
+      .two-column-list { columns: 1; }
+      .footer-label { display: none; }
+    }
+
+    @media print {
+      @page { size: 16in 9in; margin: 0; }
+      body { overflow: visible; background: #fff; color: #111; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+      .deck { width: auto; height: auto; }
+      .deck::before, .deck::after, .controls, .progress, .footer-label, .index-panel { display: none !important; }
+      .slide, .slide.active { position: relative; display: flex !important; width: 16in; height: 9in; padding: .52in .62in .62in; break-after: page; overflow: hidden; opacity: 1; animation: none; background: var(--bg); color: var(--text); }
+    }
+  </style>
+</head>
+<body>
+  <main class="deck" id="deck" aria-live="polite">
+    <section class="slide active" data-title="Title">
+      <div class="hero-layout">
+        <div>
+          <div class="brand"><span class="brand-mark"><span>D</span></span> D-Auto Club</div>
+          <p class="eyebrow" style="margin-top:38px">Project planning meeting · 17 July 2026</p>
+          <h1>Delivery plan<br><span class="accent">&amp; feasibility</span></h1>
+          <p class="lede">Two React Native apps. One Laravel platform. Six engineers. A six-month target that needs clear choices.</p>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:28px">
+            <span class="pill">User App</span><span class="pill">Seller App</span><span class="pill">Backend</span><span class="pill">Admin proposal</span>
+          </div>
+        </div>
+        <div class="hero-visual" aria-hidden="true">
+          <div class="phone one"><img src="../../workflow/tasks/20260716T1615_understand-figma/supporting-materials/User%20App/splash%20screen%20%2B%20login%20page.png" alt=""></div>
+          <div class="phone two"><img src="../../workflow/tasks/20260716T1615_understand-figma/supporting-materials/Seller%20App/Splashscreen%20%2B%20Login%20Page.png" alt=""></div>
+        </div>
+      </div>
+      <p class="source-note">Prepared from exported User App and Seller App Figma screens plus PM clarifications.</p>
+    </section>
+
+    <section class="slide" data-title="Executive summary">
+      <div class="slide-head"><div><p class="eyebrow">01 · Executive summary</p><h2>The decision in one slide</h2></div><div class="brand"><span class="brand-mark"><span>D</span></span></div></div>
+      <div class="grid cols-3" style="flex:1;align-items:stretch">
+        <article class="card green-card"><span class="status confirmed">Confirmed</span><p class="metric" style="margin-top:22px">3 + 3</p><p class="metric-label">React Native + Laravel developers from Month 1</p><ul class="compact" style="margin-top:20px"><li>Separate User and Seller apps</li><li>Shared backend and reusable mobile packages</li><li>Seller-managed logistics</li></ul></article>
+        <article class="card amber-card"><span class="status open">Assessment</span><p class="metric amber" style="margin-top:22px">6 months</p><p class="metric-label">Possible for a controlled release, not a safe promise for every visible flow</p><ul class="compact" style="margin-top:20px"><li>Scope must lock early</li><li>Managed services are essential</li><li>Final 4–6 weeks protected for quality</li></ul></article>
+        <article class="card red"><span class="status proposed">Recommendation</span><p class="metric" style="margin-top:22px">8–10 months</p><p class="metric-label">More credible for full visible scope at production quality</p><ul class="compact" style="margin-top:20px"><li>Add dedicated QA to protect six months</li><li>Decide admin and escrow now</li><li>Do not postpone testing to Month 6</li></ul></article>
+      </div>
+      <p class="quote" style="margin:28px 0 0">Approve six months as a <span class="amber">conditional target</span>, with delivery gates and an agreed deferral order.</p>
+    </section>
+
+    <section class="slide" data-title="Product landscape">
+      <div class="slide-head"><div><p class="eyebrow">02 · Product landscape</p><h2>Four surfaces, one operating model</h2></div><span class="status proposed">Admin scope proposed</span></div>
+      <div class="architecture" style="margin:auto 0">
+        <div class="arch-col"><div class="arch-box"><strong>User App</strong><br><span class="small">Browse · chat · pay · track</span></div><div class="arch-box"><strong>Seller App</strong><br><span class="small">List · convert · fulfil · support</span></div></div>
+        <div class="arch-arrow">⇄</div>
+        <div class="arch-col"><div class="arch-box core"><strong>Laravel API Platform</strong><br><span class="small">Identity · catalogue · compatibility · chat · orders · audit</span></div><div class="arch-box core"><strong>MySQL + queues + object storage</strong><br><span class="small">Transactional data · jobs · media</span></div></div>
+        <div class="arch-arrow">⇄</div>
+        <div class="arch-col"><div class="arch-box"><strong>Third parties</strong><br><span class="small">Escrow · social login · maps · push</span></div><div class="arch-box"><strong>Admin / Operations</strong><br><span class="small">Approval · moderation · exceptions · reporting</span></div></div>
+      </div>
+      <div class="grid cols-4" style="margin-top:28px"><div class="card flat"><strong>Core business</strong><p class="small">Spare parts and compatibility</p></div><div class="card flat"><strong>Conversion</strong><p class="small">Chat and escrow payment links</p></div><div class="card flat"><strong>Fulfilment</strong><p class="small">Seller shipping and tracking</p></div><div class="card flat"><strong>Trust</strong><p class="small">Verification, reviews, reports, disputes</p></div></div>
+    </section>
+
+    <section class="slide" data-title="Confirmed Q&A">
+      <div class="slide-head"><div><p class="eyebrow">03 · Confirmed Q&amp;A</p><h2>What we know today</h2></div><span class="status confirmed">PM confirmed</span></div>
+      <div class="grid cols-3">
+        <article class="card"><h3>Technology</h3><ul class="checklist compact"><li>React Native frontend</li><li>Laravel backend</li><li>User and Seller are separate apps</li><li>Editable Figma unavailable</li></ul></article>
+        <article class="card"><h3>Team</h3><ul class="checklist compact"><li>3 frontend developers</li><li>3 backend developers</li><li>All available from Month 1</li><li>PM owns product and UAT</li><li>Infra owns environments/operations</li></ul></article>
+        <article class="card"><h3>Commerce</h3><ul class="checklist compact"><li>Third-party escrow</li><li>Seller sends link via chat</li><li>Seller handles logistics</li><li>Seller sends tracking to buyer</li><li>Ideally all visible scope</li></ul></article>
+        <article class="card"><h3>Compatibility data</h3><p>Expected from the design team or a backend import/scrape process.</p><p class="small amber">Source rights, accuracy owner, and update process remain open.</p></article>
+        <article class="card"><h3>Admin</h3><p>Not discussed yet.</p><p class="small">A minimum operational dashboard is proposed later in this deck.</p></article>
+        <article class="card"><h3>Quality capacity</h3><p>No dedicated QA role has been identified.</p><p class="small amber">Developers must carry automated regression; PM-led UAT cannot replace it.</p></article>
+      </div>
+    </section>
+
+    <section class="slide" data-title="User App scope">
+      <div class="slide-head"><div><p class="eyebrow">04 · User App</p><h2>A broad consumer marketplace</h2></div><span class="pill">React Native app 1</span></div>
+      <div class="grid cols-2" style="flex:1">
+        <figure class="card app-shot"><img src="../../workflow/tasks/20260716T1615_understand-figma/supporting-materials/User%20App/landing%20page%20to%20car%20model%20list%20page%20flow.png" alt="Exported User App landing and vehicle-selection flow"><figcaption>Vehicle-first discovery is the product's core differentiator.</figcaption></figure>
+        <div class="grid cols-2">
+          <article class="card flat"><h3>Account &amp; vehicle</h3><ul class="compact"><li>Social login</li><li>Profile and addresses</li><li>My Cars</li><li>Brand / series / variant / year</li></ul></article>
+          <article class="card flat"><h3>Marketplace</h3><ul class="compact"><li>Spare parts</li><li>Accessories</li><li>Compatibility</li><li>Search, filters, favourites</li></ul></article>
+          <article class="card flat"><h3>Discovery</h3><ul class="compact"><li>Used cars</li><li>Car plates</li><li>Workshops</li><li>EV charging and community</li></ul></article>
+          <article class="card flat"><h3>Transaction &amp; trust</h3><ul class="compact"><li>Chat and payment link</li><li>Orders and tracking</li><li>Refunds and returns</li><li>Reviews and reports</li></ul></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-title="Seller App scope">
+      <div class="slide-head"><div><p class="eyebrow">05 · Seller App</p><h2>A complete selling and fulfilment tool</h2></div><span class="pill">React Native app 2</span></div>
+      <div class="grid cols-2" style="flex:1">
+        <div class="grid cols-2">
+          <article class="card flat"><h3>Seller identity</h3><ul class="compact"><li>Social login</li><li>Seller types and verification</li><li>Store selection/profile</li><li>China/Malaysia addresses</li></ul></article>
+          <article class="card flat"><h3>Listings</h3><ul class="compact"><li>Parts and accessories</li><li>Vehicles and plates</li><li>Media, price, stock</li><li>Compatibility and moderation</li></ul></article>
+          <article class="card flat"><h3>Conversion</h3><ul class="compact"><li>Buyer conversations</li><li>Product/order cards</li><li>Escrow payment links</li><li>Payment-status events</li></ul></article>
+          <article class="card flat"><h3>Fulfilment</h3><ul class="compact"><li>To pay / to ship</li><li>Courier and tracking</li><li>Cancel and refund</li><li>Return received</li></ul></article>
+        </div>
+        <figure class="card app-shot"><img src="../../workflow/tasks/20260716T1615_understand-figma/supporting-materials/Seller%20App/Order%20Section%20Seller.png" alt="Exported Seller App order status cards"><figcaption>Seller order queues expose the full operational state machine.</figcaption></figure>
+      </div>
+    </section>
+
+    <section class="slide" data-title="End-to-end journey">
+      <div class="slide-head"><div><p class="eyebrow">06 · Shared journey</p><h2>One sale crosses both apps and the platform</h2></div><span class="status proposed">Proposed controlled flow</span></div>
+      <div class="flow" style="margin:auto 0 28px">
+        <div class="flow-step"><span class="step-no">01</span><h3>Discover</h3><p class="small">Buyer selects car and finds a compatible part.</p></div>
+        <div class="flow-step"><span class="step-no">02</span><h3>Discuss</h3><p class="small">Chat carries product context, price, and questions.</p></div>
+        <div class="flow-step"><span class="step-no">03</span><h3>Pay</h3><p class="small">Seller sends an approved escrow link; provider confirms status.</p></div>
+        <div class="flow-step"><span class="step-no">04</span><h3>Fulfil</h3><p class="small">Seller ships and submits courier/tracking information.</p></div>
+        <div class="flow-step"><span class="step-no">05</span><h3>Close</h3><p class="small">Buyer tracks, confirms, reviews—or opens a dispute/return.</p></div>
+      </div>
+      <div class="grid cols-3"><article class="card amber-card"><h3>Shared dependency</h3><p class="small">Order state must be identical across User App, Seller App, backend, notifications, and admin.</p></article><article class="card amber-card"><h3>Security dependency</h3><p class="small">A chat link is not proof of payment. Trust signed provider events.</p></article><article class="card amber-card"><h3>Operations dependency</h3><p class="small">Refund, dispute, and tracking exceptions require admin ownership.</p></article></div>
+    </section>
+
+    <section class="slide" data-title="Escrow and logistics">
+      <div class="slide-head"><div><p class="eyebrow">07 · Escrow, chat &amp; logistics</p><h2>Do not treat arbitrary links as payments</h2></div><span class="status open">Provider capabilities open</span></div>
+      <div class="grid cols-2" style="flex:1;align-items:stretch">
+        <article class="card red"><h3>Recommended escrow sequence</h3><ol style="line-height:1.5"><li>Platform or seller creates a provider transaction.</li><li>Backend stores provider ID, amount, order, seller, and expiry.</li><li>Seller sends an allowlisted link card through chat.</li><li>Buyer opens the provider page.</li><li>Signed webhook confirms paid / expired / cancelled / disputed / refunded.</li><li>Backend updates both apps and the audit trail.</li></ol></article>
+        <article class="card"><h3>Seller-managed logistics</h3><ol style="line-height:1.5"><li>Paid order enters <strong>To Ship</strong>.</li><li>Seller chooses courier and enters tracking.</li><li>Backend validates required fields and records history.</li><li>Buyer receives a tracking card and notification.</li><li>Seller and admin handle delay, invalid tracking, return, and refund exceptions.</li></ol><p class="small amber">Meeting decision: manual tracking only, or courier API verification?</p></article>
+      </div>
+    </section>
+
+    <section class="slide" data-title="System architecture">
+      <div class="slide-head"><div><p class="eyebrow">08 · Proposed architecture</p><h2>Separate apps, shared foundations</h2></div><span class="status proposed">Recommendation</span></div>
+      <div class="architecture" style="flex:1;align-items:center">
+        <div class="arch-col"><div class="arch-box"><strong>User App</strong><br><span class="small">React Native bundle</span></div><div class="arch-box"><strong>Seller App</strong><br><span class="small">React Native bundle</span></div><div class="arch-box"><strong>Shared packages</strong><br><span class="small">UI · API · auth · chat · i18n</span></div></div>
+        <div class="arch-arrow">⇄</div>
+        <div class="arch-col"><div class="arch-box core"><strong>Laravel modular monolith</strong></div><div class="arch-box"><strong>Identity · sellers · vehicles</strong></div><div class="arch-box"><strong>Catalogue · compatibility · search</strong></div><div class="arch-box"><strong>Chat · orders · escrow · tracking</strong></div><div class="arch-box"><strong>Admin · audit · notifications</strong></div></div>
+        <div class="arch-arrow">⇄</div>
+        <div class="arch-col"><div class="arch-box"><strong>MySQL</strong><br><span class="small">Transactional source of truth</span></div><div class="arch-box"><strong>Queue / cache</strong><br><span class="small">Realtime events and jobs</span></div><div class="arch-box"><strong>Object storage</strong><br><span class="small">Images and chat media</span></div><div class="arch-box"><strong>External adapters</strong><br><span class="small">Escrow · maps · push · social</span></div></div>
+      </div>
+      <p class="small">Start as a modular monolith. Separate services only when measured scale or ownership requires it.</p>
+    </section>
+
+    <section class="slide" data-title="Frontend shared work">
+      <div class="slide-head"><div><p class="eyebrow">09 · Frontend details</p><h2>Shared React Native platform</h2></div><span class="pill">Used by both apps</span></div>
+      <div class="grid cols-3">
+        <article class="card"><h3>Foundation</h3><ul class="compact"><li>Monorepo/shared packages</li><li>Navigation and deep links</li><li>Environment and feature flags</li><li>API client and typed contracts</li><li>Error/offline strategy</li></ul></article>
+        <article class="card"><h3>Design system</h3><ul class="compact"><li>Tokens from PNG references</li><li>Forms and validation</li><li>Lists, cards, modals, media</li><li>Loading/empty/error states</li><li>Accessibility and responsive rules</li></ul></article>
+        <article class="card"><h3>Platform services</h3><ul class="compact"><li>Secure token storage</li><li>Social login SDKs</li><li>Push notifications</li><li>Analytics and crash reporting</li><li>Localization</li></ul></article>
+        <article class="card"><h3>Realtime</h3><ul class="compact"><li>Conversation cache</li><li>Message delivery/read state</li><li>Product/order/link cards</li><li>Offline retry</li><li>Media upload progress</li></ul></article>
+        <article class="card"><h3>Quality</h3><ul class="compact"><li>Unit/component tests</li><li>Navigation tests</li><li>API integration tests</li><li>End-to-end critical paths</li><li>Device/OS matrix</li></ul></article>
+        <article class="card"><h3>Release</h3><ul class="compact"><li>iOS/Android signing</li><li>Store privacy declarations</li><li>Beta distribution</li><li>Versioning and migrations</li><li>Crash/performance monitoring</li></ul></article>
+      </div>
+    </section>
+
+    <section class="slide" data-title="User frontend work">
+      <div class="slide-head"><div><p class="eyebrow">10 · Frontend details</p><h2>User App workstream</h2></div><span class="pill">Primary buyer journey</span></div>
+      <div class="grid cols-4">
+        <article class="card"><h3>Identity</h3><ul class="compact small"><li>Social sign-in</li><li>Profile/addresses</li><li>Settings/security</li><li>Notifications</li></ul></article>
+        <article class="card"><h3>Vehicle</h3><ul class="compact small"><li>My Cars</li><li>Brand/series/variant/year</li><li>Default car</li><li>Compatibility status</li></ul></article>
+        <article class="card"><h3>Commerce</h3><ul class="compact small"><li>Parts/accessories</li><li>Categories/search/filter</li><li>Detail/review/favourite</li><li>Seller storefront</li></ul></article>
+        <article class="card"><h3>Orders</h3><ul class="compact small"><li>Escrow link card</li><li>Payment state</li><li>Tracking/history</li><li>Cancel/refund/return</li></ul></article>
+        <article class="card"><h3>Listings</h3><ul class="compact small"><li>Used cars</li><li>Car plates</li><li>Contact seller</li><li>Reports</li></ul></article>
+        <article class="card"><h3>Locations</h3><ul class="compact small"><li>Workshops</li><li>EV charging</li><li>Map/list/detail</li><li>Directions</li></ul></article>
+        <article class="card"><h3>Community</h3><ul class="compact small"><li>External groups</li><li>Chat list/thread</li><li>Media/cards</li><li>Block/report</li></ul></article>
+        <article class="card amber-card"><h3>Missing states</h3><ul class="compact small"><li>Loading/empty/error</li><li>Offline/permission</li><li>Expired link</li><li>Payment/tracking failure</li></ul></article>
+      </div>
+    </section>
+
+    <section class="slide" data-title="Seller frontend work">
+      <div class="slide-head"><div><p class="eyebrow">11 · Frontend details</p><h2>Seller App workstream</h2></div><span class="pill">Operations-heavy</span></div>
+      <div class="grid cols-4">
+        <article class="card"><h3>Onboarding</h3><ul class="compact small"><li>Social sign-in</li><li>Seller type</li><li>Documents/status</li><li>Store profile</li></ul></article>
+        <article class="card"><h3>Catalogue</h3><ul class="compact small"><li>Create/edit products</li><li>Media/attributes</li><li>Price/stock</li><li>Publish/moderation</li></ul></article>
+        <article class="card"><h3>Compatibility</h3><ul class="compact small"><li>Vehicle mapping</li><li>Category selection</li><li>Unknown fitment</li><li>Correction status</li></ul></article>
+        <article class="card"><h3>Listings</h3><ul class="compact small"><li>Parts/accessories</li><li>Vehicles/plates</li><li>Preview/comments</li><li>Location/address</li></ul></article>
+        <article class="card"><h3>Chat</h3><ul class="compact small"><li>Buyer threads</li><li>Product/order cards</li><li>Escrow link card</li><li>Status and retry</li></ul></article>
+        <article class="card"><h3>Orders</h3><ul class="compact small"><li>Unpaid/to ship</li><li>Shipped/completed</li><li>Cancel/refund</li><li>Return received</li></ul></article>
+        <article class="card"><h3>Logistics</h3><ul class="compact small"><li>Courier selection</li><li>Tracking entry</li><li>Buyer notification</li><li>Delay/invalid states</li></ul></article>
+        <article class="card amber-card"><h3>Operations</h3><ul class="compact small"><li>Notifications</li><li>Seller status</li><li>Support/report</li><li>Exception handling</li></ul></article>
+      </div>
+    </section>
+
+    <section class="slide" data-title="Backend foundation">
+      <div class="slide-head"><div><p class="eyebrow">12 · Backend details</p><h2>Laravel foundation &amp; marketplace</h2></div><span class="pill">Backend workstream A</span></div>
+      <div class="grid cols-3">
+        <article class="card"><h3>Platform</h3><ul class="compact"><li>API v1 + OpenAPI</li><li>Validation/errors/pagination</li><li>Policies/rate limits/audit</li><li>Queues/cache/storage</li><li>Monitoring and CI</li></ul></article>
+        <article class="card"><h3>Identity &amp; sellers</h3><ul class="compact"><li>Social auth/tokens/devices</li><li>Users, roles, permissions</li><li>Seller types/documents</li><li>Approval/suspension</li><li>Addresses/regions</li></ul></article>
+        <article class="card"><h3>Vehicle data</h3><ul class="compact"><li>Brand/series/variant/year</li><li>Import/scrape provenance</li><li>Compatibility mapping</li><li>Review/correction/versioning</li><li>Data quality reports</li></ul></article>
+        <article class="card"><h3>Catalogue</h3><ul class="compact"><li>Products/SKUs/categories</li><li>Attributes/media/price/stock</li><li>Seller ownership</li><li>Publication/moderation</li><li>Search and filters</li></ul></article>
+        <article class="card"><h3>Discovery</h3><ul class="compact"><li>Wishlists/reviews/reports</li><li>Used cars and plates</li><li>Workshops/EV charging</li><li>Community links</li><li>Analytics events</li></ul></article>
+        <article class="card red"><h3>Hard part</h3><p>Compatibility is not CRUD. It requires an authoritative data source, matching rules, provenance, approvals, and correction history.</p></article>
+      </div>
+    </section>
+
+    <section class="slide" data-title="Backend commerce">
+      <div class="slide-head"><div><p class="eyebrow">13 · Backend details</p><h2>Engagement, escrow &amp; operations</h2></div><span class="pill">Backend workstream B</span></div>
+      <div class="grid cols-3">
+        <article class="card"><h3>Realtime chat</h3><ul class="compact"><li>Conversations/participants</li><li>Messages/read state/media</li><li>Product/order/link cards</li><li>Block/report/retention</li><li>Push events and retries</li></ul></article>
+        <article class="card"><h3>Escrow</h3><ul class="compact"><li>Provider adapter</li><li>Link/transaction records</li><li>Signed idempotent webhooks</li><li>Paid/expired/disputed/refunded</li><li>Exception reconciliation</li></ul></article>
+        <article class="card"><h3>Orders</h3><ul class="compact"><li>Snapshots and stock rules</li><li>State machine/history</li><li>Cancellation/refund/return</li><li>Seller fulfilment</li><li>Buyer/seller views</li></ul></article>
+        <article class="card"><h3>Tracking</h3><ul class="compact"><li>Courier and tracking fields</li><li>Validation/history</li><li>Buyer notifications</li><li>Delay/invalid exceptions</li><li>Optional courier adapters</li></ul></article>
+        <article class="card"><h3>Admin APIs</h3><ul class="compact"><li>Approvals/moderation</li><li>Order/escrow exceptions</li><li>Chat/report review</li><li>Audit and exports</li><li>Operational metrics</li></ul></article>
+        <article class="card"><h3>Reliability</h3><ul class="compact"><li>Concurrency tests</li><li>Failed job recovery</li><li>Backups and restore</li><li>Alerts/runbooks</li><li>Security/performance</li></ul></article>
+      </div>
+    </section>
+
+    <section class="slide" data-title="Admin dashboard">
+      <div class="slide-head"><div><p class="eyebrow">14 · Admin proposal</p><h2>Minimum operations dashboard</h2></div><span class="status open">Scope not approved</span></div>
+      <div class="grid cols-4">
+        <article class="card"><h3>Access</h3><p class="small">Admin MFA, roles, permissions, and immutable audit logs.</p></article>
+        <article class="card"><h3>Users &amp; sellers</h3><p class="small">Verification, approval, suspension, documents, and seller history.</p></article>
+        <article class="card"><h3>Catalogue</h3><p class="small">Categories, products, listing moderation, compatibility imports/corrections.</p></article>
+        <article class="card"><h3>Orders</h3><p class="small">State history, cancellations, returns, refunds, and fulfilment exceptions.</p></article>
+        <article class="card"><h3>Escrow</h3><p class="small">Link/transaction status, webhook exceptions, disputes, refunds, reconciliation.</p></article>
+        <article class="card"><h3>Trust</h3><p class="small">Reviews, reports, blocked users, reported chat, and moderation queues.</p></article>
+        <article class="card"><h3>Content</h3><p class="small">Used cars, plates, workshops, EV charging, community, announcements.</p></article>
+        <article class="card amber-card"><h3>Phase later</h3><p class="small">Advanced BI, recommendations, marketing automation, and polished analytics.</p></article>
+      </div>
+      <p class="quote" style="margin-top:24px">Without minimum admin tools, operations will fall back to unsafe direct database changes.</p>
+    </section>
+
+    <section class="slide" data-title="Quality assurance">
+      <div class="slide-head"><div><p class="eyebrow">15 · Quality assurance</p><h2>Quality is a workstream, not a final phase</h2></div><span class="status open">No dedicated QA identified</span></div>
+      <div class="grid cols-3">
+        <article class="card green-card"><h3>Developers own</h3><ul class="compact"><li>Unit and component tests</li><li>API feature/contract tests</li><li>Integration and regression</li><li>Critical end-to-end flows</li><li>Code review and static checks</li></ul></article>
+        <article class="card blue-card"><h3>PM owns</h3><ul class="compact"><li>Acceptance criteria</li><li>Business-rule decisions</li><li>UAT scenarios and sign-off</li><li>Scope prioritization</li><li>Go/no-go recommendation</li></ul></article>
+        <article class="card"><h3>Infrastructure owns</h3><ul class="compact"><li>Environments and secrets</li><li>Deployments and rollback</li><li>Backups and restore</li><li>Monitoring and alerts</li><li>Production readiness</li></ul></article>
+      </div>
+      <div class="grid cols-4" style="margin-top:18px"><div class="card flat"><strong>Mobile</strong><p class="small">Devices, OS, login SDKs, offline, push, deep links, upgrades.</p></div><div class="card flat"><strong>Commerce</strong><p class="small">Duplicate webhooks, expired links, cancellation, dispute, refund, return.</p></div><div class="card flat"><strong>Security</strong><p class="small">Authorization, uploads, abuse, secrets, audit, privacy.</p></div><div class="card flat"><strong>Operations</strong><p class="small">Load, queues, failed jobs, recovery, reconciliation.</p></div></div>
+      <p class="small amber" style="margin-top:18px">Strongest schedule-protection recommendation: add dedicated QA capacity before Month 3.</p>
+    </section>
+
+    <section class="slide" data-title="Team allocation">
+      <div class="slide-head"><div><p class="eyebrow">16 · Team allocation</p><h2>Six engineers, explicit lanes</h2></div><span class="status proposed">Suggested ownership</span></div>
+      <div class="grid cols-2">
+        <article class="card"><h3>Frontend · 3 React Native</h3><table><tbody><tr><td><strong>FE Lead</strong></td><td>Shared architecture, auth, release pipeline, code review, quality</td></tr><tr><td><strong>FE 2</strong></td><td>User App marketplace, vehicle, discovery, buyer orders</td></tr><tr><td><strong>FE 3</strong></td><td>Seller App listings, order operations, seller profile</td></tr><tr><td><strong>Converge</strong></td><td>Chat, escrow cards, integration, regression, stores</td></tr></tbody></table></article>
+        <article class="card"><h3>Backend · 3 Laravel</h3><table><tbody><tr><td><strong>BE Lead</strong></td><td>Foundation, identity, architecture, escrow/security, code review</td></tr><tr><td><strong>BE 2</strong></td><td>Vehicle data, compatibility, catalogue, search, supporting modules</td></tr><tr><td><strong>BE 3</strong></td><td>Sellers, chat, orders, tracking, notifications, admin APIs</td></tr><tr><td><strong>Converge</strong></td><td>Escrow, integration, performance, security, production readiness</td></tr></tbody></table></article>
+      </div>
+      <div class="grid cols-3" style="margin-top:18px"><div class="card flat"><strong>PM</strong><p class="small">Scope, decisions, acceptance criteria, UAT.</p></div><div class="card flat"><strong>Infrastructure</strong><p class="small">Environments, CI/CD support, monitoring, recovery.</p></div><div class="card amber-card flat"><strong>Gap</strong><p class="small">Daily QA and cross-app regression ownership.</p></div></div>
+    </section>
+
+    <section class="slide" data-title="Six-month timeline">
+      <div class="slide-head"><div><p class="eyebrow">17 · Conditional schedule</p><h2>Six-month controlled-release path</h2></div><span class="status open">Requires scope lock</span></div>
+      <div class="timeline" style="flex:1">
+        <article class="month"><span class="small">Weeks 1–4</span><strong>Month 1</strong><div class="bar"></div><ul class="compact small"><li>Shared foundations</li><li>Auth and profiles</li><li>Vehicle taxonomy</li><li>Seller onboarding</li><li>API contracts</li></ul></article>
+        <article class="month"><span class="small">Weeks 5–8</span><strong>Month 2</strong><div class="bar"></div><ul class="compact small"><li>Products/SKUs</li><li>Seller listings</li><li>Compatibility</li><li>Search/filter</li><li>Core UI system</li></ul></article>
+        <article class="month"><span class="small">Weeks 9–13</span><strong>Month 3</strong><div class="bar"></div><ul class="compact small"><li>Chat/realtime</li><li>Order foundation</li><li>Escrow adapter</li><li>Used cars/plates</li><li>First end-to-end slice</li></ul></article>
+        <article class="month"><span class="small">Weeks 14–17</span><strong>Month 4</strong><div class="bar"></div><ul class="compact small"><li>Payment links</li><li>Tracking</li><li>Refund/return</li><li>Workshop/EV/community</li><li>Admin minimum</li></ul></article>
+        <article class="month"><span class="small">Weeks 18–21</span><strong>Month 5</strong><div class="bar"></div><ul class="compact small"><li>Cross-app integration</li><li>Operations/admin</li><li>Notifications</li><li>Performance/security</li><li>Beta feedback</li></ul></article>
+        <article class="month"><span class="small">Weeks 22–26</span><strong>Month 6</strong><div class="bar"></div><ul class="compact small"><li>Feature freeze</li><li>Regression/UAT</li><li>Store submission</li><li>Recovery rehearsal</li><li>Go/no-go</li></ul></article>
+      </div>
+      <p class="small amber">Gate rule: unfinished features cannot consume the entire Month 6 hardening window.</p>
+    </section>
+
+    <section class="slide" data-title="Estimate scenarios">
+      <div class="slide-head"><div><p class="eyebrow">18 · Estimate</p><h2>Three honest scenarios</h2></div><span class="pill">Planning range, not commitment</span></div>
+      <div class="grid cols-3" style="flex:1;align-items:stretch">
+        <article class="card green-card"><span class="status proposed">Scenario A</span><h3 style="margin-top:18px">6-month controlled release</h3><p class="metric green">26 weeks</p><ul class="compact"><li>Scope locked in Week 1</li><li>Managed escrow/realtime/maps</li><li>Minimum admin only</li><li>Supporting features may defer</li><li>Dedicated hardening window</li></ul><p class="small"><strong>Confidence:</strong> Medium, if conditions hold.</p></article>
+        <article class="card amber-card"><span class="status proposed">Scenario B</span><h3 style="margin-top:18px">Full visible production scope</h3><p class="metric amber">8–10 months</p><ul class="compact"><li>Both apps fully polished</li><li>All supporting modules</li><li>Operational admin</li><li>Robust refund/dispute flow</li><li>Production quality and contingency</li></ul><p class="small"><strong>Confidence:</strong> Most credible current estimate.</p></article>
+        <article class="card red"><span class="status open">Scenario C</span><h3 style="margin-top:18px">6-month full-scope attempt</h3><p class="metric">High risk</p><ul class="compact"><li>Add QA/admin capacity</li><li>Decisions resolved immediately</li><li>No provider delays</li><li>Low requirements churn</li><li>Reduced contingency</li></ul><p class="small"><strong>Confidence:</strong> Low without extra capacity.</p></article>
+      </div>
+    </section>
+
+    <section class="slide" data-title="Feasibility verdict">
+      <div class="slide-head"><div><p class="eyebrow">19 · Feasibility verdict</p><h2>Is six months doable?</h2></div></div>
+      <div class="verdict">
+        <div class="verdict-big"><div><div class="verdict-word">YES*</div><p class="lede" style="max-width:520px">for a controlled release with explicit conditions</p></div></div>
+        <div class="grid">
+          <article class="card green-card"><h3>Six months works when</h3><ul class="compact"><li>MVP and admin scope lock immediately.</li><li>Escrow provider exposes usable APIs and signed webhooks.</li><li>Both apps share packages and contracts.</li><li>Compatibility source is legal and reliable.</li><li>Testing runs continuously; Month 6 is protected.</li></ul></article>
+          <article class="card red"><h3>Six months fails when</h3><ul class="compact"><li>“Ideally all” becomes an unprioritized fixed commitment.</li><li>Admin, refund, seller, or data rules arrive late.</li><li>Chat/payment links are built without provider certainty.</li><li>No one owns daily regression and device testing.</li><li>Feature work continues through the launch window.</li></ul></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide" data-title="Critical risks">
+      <div class="slide-head"><div><p class="eyebrow">20 · Critical risks</p><h2>What can move the date</h2></div><span class="pill">Review weekly</span></div>
+      <div class="risk-list">
+        <div class="risk"><span class="risk-level accent">Critical</span><div><strong>Escrow capability and policy</strong><div class="small">Link creation, webhooks, disputes, refunds, commission, reconciliation.</div></div><span class="status open">Open</span></div>
+        <div class="risk"><span class="risk-level accent">Critical</span><div><strong>Compatibility data</strong><div class="small">Legal source, matching depth, accuracy owner, refresh and correction process.</div></div><span class="status open">Open</span></div>
+        <div class="risk"><span class="risk-level amber">High</span><div><strong>Full visible scope</strong><div class="small">Two apps, supporting discovery, commerce, operations, and missing states.</div></div><span class="status open">Open</span></div>
+        <div class="risk"><span class="risk-level amber">High</span><div><strong>No dedicated QA</strong><div class="small">Cross-app, device, payment, chat, and regression load falls on developers and PM.</div></div><span class="status proposed">Add capacity</span></div>
+        <div class="risk"><span class="risk-level amber">High</span><div><strong>Static PNG specifications</strong><div class="small">Missing prototypes, tokens, edge states, validation rules, and exact assets.</div></div><span class="status proposed">Design handoff</span></div>
+        <div class="risk"><span class="risk-level">Medium</span><div><strong>Admin not scoped</strong><div class="small">Operations cannot safely approve, moderate, reconcile, or resolve exceptions.</div></div><span class="status open">Decide</span></div>
+      </div>
+    </section>
+
+    <section class="slide" data-title="Meeting decisions 1">
+      <div class="slide-head"><div><p class="eyebrow">21 · Meeting decisions</p><h2>Decide before architecture locks</h2></div><span class="status open">P0 questions</span></div>
+      <div class="card" style="padding:18px 24px">
+        <div class="decision"><span class="decision-id">01</span><div><strong>What does “six-month launch” mean?</strong><div class="small">Beta, public MVP, or fully hardened commercial launch?</div></div><span class="owner">Management + PM</span></div>
+        <div class="decision"><span class="decision-id">02</span><div><strong>What is protected MVP and what may defer?</strong><div class="small">Approve the scope-deferral order before delivery starts.</div></div><span class="owner">Management + PM</span></div>
+        <div class="decision"><span class="decision-id">03</span><div><strong>Is admin included in six months?</strong><div class="small">Confirm minimum modules, UI owner, and operational roles.</div></div><span class="owner">Operations + PM</span></div>
+        <div class="decision"><span class="decision-id">04</span><div><strong>Which escrow provider?</strong><div class="small">Confirm API links, signed webhooks, disputes, refunds, fees, and reconciliation.</div></div><span class="owner">Business + Finance</span></div>
+        <div class="decision"><span class="decision-id">05</span><div><strong>What payment links may sellers send?</strong><div class="small">Platform-created/allowlisted links are safer than arbitrary URLs.</div></div><span class="owner">Security + Product</span></div>
+      </div>
+    </section>
+
+    <section class="slide" data-title="Meeting decisions 2">
+      <div class="slide-head"><div><p class="eyebrow">22 · Meeting decisions</p><h2>Decide before feature milestones</h2></div><span class="status open">P1 questions</span></div>
+      <div class="grid cols-2">
+        <article class="card"><h3>Marketplace rules</h3><ul class="compact"><li>Seller types and verification documents?</li><li>One seller, one store—or multiple?</li><li>Pre-approval or post-moderation?</li><li>Inventory reservation and overselling?</li><li>Multi-seller cart or one seller per order?</li></ul></article>
+        <article class="card"><h3>Order operations</h3><ul class="compact"><li>Cancellation/return/refund/dispute rules?</li><li>Shipping deadline and late-seller action?</li><li>Manual tracking or courier validation?</li><li>Who resolves escrow and fulfilment exceptions?</li><li>What evidence is required?</li></ul></article>
+        <article class="card"><h3>Data &amp; integrations</h3><ul class="compact"><li>Legal compatibility source and owner?</li><li>English and Chinese at launch?</li><li>Social login providers?</li><li>Realtime chat, push, maps, storage, analytics?</li><li>Retention and privacy requirements?</li></ul></article>
+        <article class="card"><h3>Quality &amp; release</h3><ul class="compact"><li>Who owns daily functional QA?</li><li>Supported iOS/Android versions?</li><li>Performance and availability targets?</li><li>App-store submission owner?</li><li>Go/no-go approvers?</li></ul></article>
+      </div>
+    </section>
+
+    <section class="slide" data-title="Detailed module matrix">
+      <div class="slide-head"><div><p class="eyebrow">23 · Appendix</p><h2>Delivery matrix</h2></div><span class="pill">Shared dependency view</span></div>
+      <div class="card" style="padding:12px 18px">
+        <table>
+          <thead><tr><th>Domain</th><th>User App</th><th>Seller App</th><th>Laravel</th><th>Admin / QA</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Identity</strong></td><td>Login, profile, address</td><td>Login, onboarding, store</td><td>OAuth, tokens, roles, seller status</td><td>Approval, suspension, audit</td></tr>
+            <tr><td><strong>Vehicle</strong></td><td>My Cars, selection</td><td>Compatibility input</td><td>Taxonomy, imports, matching</td><td>Corrections, data quality</td></tr>
+            <tr><td><strong>Catalogue</strong></td><td>Browse/search/detail</td><td>Product/listing CRUD</td><td>SKU, media, stock, search</td><td>Moderation, reports</td></tr>
+            <tr><td><strong>Chat</strong></td><td>Seller conversation</td><td>Buyer conversation</td><td>Realtime, media, cards, abuse</td><td>Reported-thread review</td></tr>
+            <tr><td><strong>Escrow</strong></td><td>Open link, see status</td><td>Create/send approved link</td><td>Provider adapter/webhooks</td><td>Exceptions/reconciliation</td></tr>
+            <tr><td><strong>Orders</strong></td><td>History, track, dispute</td><td>Ship, track, refund, return</td><td>State machine, snapshots, events</td><td>Intervention and audit</td></tr>
+            <tr><td><strong>Discovery</strong></td><td>Cars, plates, maps, EV</td><td>Relevant listing management</td><td>Listings, Places adapters</td><td>Content management</td></tr>
+            <tr><td><strong>Release</strong></td><td colspan="2">iOS/Android builds, privacy, monitoring</td><td>CI/CD, backup, alerts, performance</td><td>UAT, security, rollback, sign-off</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="slide" data-title="Recommendation">
+      <div class="slide-head"><div><p class="eyebrow">24 · Recommendation</p><h2>Leave the meeting with five decisions</h2></div><div class="brand"><span class="brand-mark"><span>D</span></span></div></div>
+      <div class="grid cols-2" style="flex:1;align-items:center">
+        <div>
+          <p class="quote">Treat six months as a gated target for a controlled release—not an unconditional promise for every screen.</p>
+          <div style="margin-top:28px;display:flex;gap:10px;flex-wrap:wrap"><span class="status confirmed">6 engineers from Month 1</span><span class="status proposed">Shared RN packages</span><span class="status proposed">Minimum admin</span><span class="status open">QA capacity</span></div>
+        </div>
+        <ol class="card" style="font-size:1.08em;line-height:1.5;padding-left:58px">
+          <li><strong>Define launch:</strong> beta, MVP, or full production.</li>
+          <li><strong>Approve scope:</strong> protected MVP and deferral order.</li>
+          <li><strong>Select escrow:</strong> verify API/webhook capabilities.</li>
+          <li><strong>Assign owners:</strong> admin, QA, compatibility data, disputes.</li>
+          <li><strong>Start with gates:</strong> monthly acceptance and re-baselining.</li>
+        </ol>
+      </div>
+      <p class="source-note">Next: record decisions, update the implementation plan, and convert the relative schedule into dated milestones.</p>
+    </section>
+
+    <section class="slide" data-title="Thank you">
+      <div style="margin:auto;text-align:center;max-width:1100px">
+        <div class="brand" style="font-size:1.4em"><span class="brand-mark"><span>D</span></span> D-Auto Club</div>
+        <h1 style="margin:40px auto 24px">Questions<br><span class="accent">&amp; decisions</span></h1>
+        <p class="lede" style="margin:0 auto">The fastest path is clarity: scope, escrow, compatibility data, admin ownership, and quality capacity.</p>
+        <p class="small" style="margin-top:38px">Use ← / → to navigate · Press O for slide index · Press P to print/PDF</p>
+      </div>
+    </section>
+  </main>
+
+  <div class="controls" aria-label="Presentation controls">
+    <button class="control-btn" id="prev" type="button" aria-label="Previous slide">←</button>
+    <button class="control-btn" id="overview" type="button" aria-label="Open slide index">☷</button>
+    <span class="counter" id="counter" aria-live="off">1 / 26</span>
+    <button class="control-btn" id="next" type="button" aria-label="Next slide">→</button>
+  </div>
+  <div class="progress" id="progress"></div>
+  <div class="footer-label">D-Auto Club · Delivery plan &amp; feasibility</div>
+
+  <aside class="index-panel" id="indexPanel" aria-hidden="true">
+    <div class="index-wrap">
+      <div class="index-top"><div><p class="eyebrow">Slide index</p><h2>Jump to a section</h2></div><button class="control-btn" id="closeIndex" type="button" aria-label="Close slide index">×</button></div>
+      <div class="index-grid" id="indexGrid"></div>
+    </div>
+  </aside>
+
+  <script>
+    (() => {
+      const slides = Array.from(document.querySelectorAll('.slide'));
+      const counter = document.getElementById('counter');
+      const progress = document.getElementById('progress');
+      const panel = document.getElementById('indexPanel');
+      const grid = document.getElementById('indexGrid');
+      let current = 0;
+      let touchStartX = null;
+
+      const clamp = (value) => Math.max(0, Math.min(slides.length - 1, value));
+      const hashIndex = () => {
+        const match = location.hash.match(/^#slide-(\d+)$/);
+        return match ? clamp(Number(match[1]) - 1) : 0;
+      };
+
+      function render(updateHash = true) {
+        slides.forEach((slide, index) => {
+          const active = index === current;
+          slide.classList.toggle('active', active);
+          slide.setAttribute('aria-hidden', String(!active));
+          if (active) slide.scrollTop = 0;
+        });
+        counter.textContent = `${current + 1} / ${slides.length}`;
+        progress.style.width = `${((current + 1) / slides.length) * 100}%`;
+        document.title = `${current + 1}. ${slides[current].dataset.title} — D-Auto Club`;
+        if (updateHash) history.replaceState(null, '', `#slide-${current + 1}`);
+      }
+
+      function go(index) { current = clamp(index); closeIndex(); render(); }
+      function next() { go(current + 1); }
+      function prev() { go(current - 1); }
+      function openIndex() { panel.classList.add('open'); panel.setAttribute('aria-hidden', 'false'); document.getElementById('closeIndex').focus(); }
+      function closeIndex() { panel.classList.remove('open'); panel.setAttribute('aria-hidden', 'true'); }
+
+      slides.forEach((slide, index) => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'index-item';
+        button.innerHTML = `<span class="num">${String(index + 1).padStart(2, '0')}</span>${slide.dataset.title}`;
+        button.addEventListener('click', () => go(index));
+        grid.appendChild(button);
+      });
+
+      document.getElementById('next').addEventListener('click', next);
+      document.getElementById('prev').addEventListener('click', prev);
+      document.getElementById('overview').addEventListener('click', openIndex);
+      document.getElementById('closeIndex').addEventListener('click', closeIndex);
+      panel.addEventListener('click', (event) => { if (event.target === panel) closeIndex(); });
+
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') { closeIndex(); return; }
+        if (panel.classList.contains('open')) return;
+        if (['ArrowRight', 'PageDown', ' '].includes(event.key)) { event.preventDefault(); next(); }
+        if (['ArrowLeft', 'PageUp'].includes(event.key)) { event.preventDefault(); prev(); }
+        if (event.key === 'Home') { event.preventDefault(); go(0); }
+        if (event.key === 'End') { event.preventDefault(); go(slides.length - 1); }
+        if (event.key.toLowerCase() === 'o') { event.preventDefault(); openIndex(); }
+        if (event.key.toLowerCase() === 'p') { event.preventDefault(); window.print(); }
+      });
+
+      document.addEventListener('touchstart', (event) => { touchStartX = event.changedTouches[0].clientX; }, { passive: true });
+      document.addEventListener('touchend', (event) => {
+        if (touchStartX === null) return;
+        const delta = event.changedTouches[0].clientX - touchStartX;
+        if (Math.abs(delta) > 60) delta < 0 ? next() : prev();
+        touchStartX = null;
+      }, { passive: true });
+
+      window.addEventListener('hashchange', () => { current = hashIndex(); render(false); });
+      current = hashIndex();
+      render(false);
+    })();
+  </script>
+</body>
+</html>

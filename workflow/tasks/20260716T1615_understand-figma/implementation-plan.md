@@ -8,7 +8,8 @@ The presentation must distinguish confirmed facts from recommendations and open 
 
 Planned output:
 
-- `supporting-materials/presentation/index.html`
+- `docs/presentation/index.html`
+- `docs/presentation/delivery-timeframe.html`
 
 ## Goals
 
@@ -72,7 +73,10 @@ The timeframe will show three scenarios:
 20. Critical dependencies and schedule risks.
 21. Questions/decisions required from the meeting.
 22. Recommended next steps and decision summary.
-23. Appendix: screen inventory, detailed work breakdown, and estimation assumptions.
+23. Additional feature, data, operations, and release decisions.
+24. Appendix: cross-surface delivery matrix.
+25. Final recommendation and five required decisions.
+26. Closing questions and decisions slide.
 
 ## Detailed Work to Present
 
@@ -185,16 +189,20 @@ Create a traceable presentation narrative from the task, exported screens, prior
 
 ### Tasks
 
-- [ ] Build a screen/module inventory for the User and Seller apps.
-- [ ] Separate confirmed decisions, recommendations, assumptions, and open questions.
-- [ ] Reconcile the latest six-person-from-Month-1 staffing assumption with older backend-only documents.
-- [ ] Define the proposed minimum admin scope.
-- [ ] Define the escrow-link and seller-tracking sequence without assuming unsupported provider capabilities.
-- [ ] Finalize the executive feasibility statement and scenario estimates.
+- [x] Build a screen/module inventory for the User and Seller apps.
+- [x] Separate confirmed decisions, recommendations, assumptions, and open questions.
+- [x] Reconcile the latest six-person-from-Month-1 staffing assumption with older backend-only documents.
+- [x] Define the proposed minimum admin scope.
+- [x] Define the escrow-link and seller-tracking sequence without assuming unsupported provider capabilities.
+- [x] Finalize the executive feasibility statement and scenario estimates.
 
 ### Exit Criteria
 
 Every presentation claim is traceable to a supplied screen, PM answer, source document, or clearly labelled recommendation.
+
+### Implemented In
+
+- `docs/presentation/index.html`
 
 ## Milestone 2 - Create Detailed Work and Timeframe Slides
 
@@ -204,16 +212,20 @@ Show management what the two applications and platform actually require from the
 
 ### Tasks
 
-- [ ] Create frontend work breakdowns for shared React Native, User App, Seller App, testing, and releases.
-- [ ] Create backend work breakdowns for foundation, marketplace, chat, escrow, orders, tracking, admin, and operations.
-- [ ] Allocate parallel workstreams across three frontend and three backend developers.
-- [ ] Create a 26-week milestone timeline with dependencies and exit gates.
-- [ ] Present six-month, eight-to-ten-month, and resourced six-month scenarios.
-- [ ] Include scope-deferral order and schedule-control rules.
+- [x] Create frontend work breakdowns for shared React Native, User App, Seller App, testing, and releases.
+- [x] Create backend work breakdowns for foundation, marketplace, chat, escrow, orders, tracking, admin, and operations.
+- [x] Allocate parallel workstreams across three frontend and three backend developers.
+- [x] Create a 26-week milestone timeline with dependencies and exit gates.
+- [x] Present six-month, eight-to-ten-month, and resourced six-month scenarios.
+- [x] Include scope-deferral order and schedule-control rules.
 
 ### Exit Criteria
 
 The audience can see the work, staffing, dependencies, and tradeoffs behind the estimate.
+
+### Implemented In
+
+- `docs/presentation/index.html`
 
 ## Milestone 3 - Build the HTML Presentation
 
@@ -223,16 +235,20 @@ Produce an attractive, reliable presentation that works locally without setup.
 
 ### Tasks
 
-- [ ] Build semantic slide markup and the planned slide sequence.
-- [ ] Add responsive visual styling, reusable slide components, tables, status cards, timelines, and flow diagrams.
-- [ ] Add keyboard, touch, button, index, and print navigation.
-- [ ] Add selected Figma screenshots with readable crops and captions.
-- [ ] Add slide numbers, progress indicator, meeting date, and presentation title.
-- [ ] Add an appendix for detailed work and questions that do not fit the main narrative.
+- [x] Build semantic slide markup and the planned slide sequence.
+- [x] Add responsive visual styling, reusable slide components, tables, status cards, timelines, and flow diagrams.
+- [x] Add keyboard, touch, button, index, and print navigation.
+- [x] Add selected Figma screenshots with readable crops and captions.
+- [x] Add slide numbers, progress indicator, meeting date, and presentation title.
+- [x] Add an appendix for detailed work and questions that do not fit the main narrative.
 
 ### Exit Criteria
 
 The complete deck opens directly in a browser, works offline, and communicates the recommendation within a 20-30 minute meeting slot.
+
+### Implemented In
+
+- `docs/presentation/index.html`
 
 ## Milestone 4 - Verify and Rehearse
 
@@ -242,18 +258,53 @@ Ensure the deck is technically reliable and factually safe to present.
 
 ### Tasks
 
-- [ ] Check every internal navigation action and keyboard shortcut.
-- [ ] Check all local images and relative paths.
-- [ ] Test common desktop viewport sizes and a smaller-screen fallback.
-- [ ] Test print/PDF output with one slide per page.
-- [ ] Check text contrast, focus states, overflow, table readability, and reduced motion.
-- [ ] Verify that confirmed, proposed, and open items are visually distinguishable.
-- [ ] Verify the timeframe arithmetic, staffing assumptions, and risk statements.
-- [ ] Rehearse the main narrative and confirm it fits the meeting duration.
+- [x] Check every internal navigation action and keyboard shortcut.
+- [x] Check all local images and relative paths.
+- [x] Test common desktop viewport sizes and a smaller-screen fallback.
+- [x] Test print/PDF output with one slide per page.
+- [x] Check text contrast, focus states, overflow, table readability, and reduced motion.
+- [x] Verify that confirmed, proposed, and open items are visually distinguishable.
+- [x] Verify the timeframe arithmetic, staffing assumptions, and risk statements.
+- [x] Review the main narrative and confirm it fits the planned meeting duration.
 
 ### Exit Criteria
 
 No broken assets or navigation remain, the content fits its slides and print pages, and the PM can present without needing development tools.
+
+### Implemented In
+
+- `docs/presentation/index.html`
+- `docs/presentation/validation-cover.png`
+- `docs/presentation/validation-timeline.png`
+- `docs/presentation/validation-small.png`
+- `docs/presentation/validation-print.pdf`
+
+## Milestone 5 - Create the Delivery Timeframe Report
+
+### Goal
+
+Provide a normal scrolling HTML document that turns the presentation estimate into a detailed, trackable delivery schedule.
+
+### Tasks
+
+- [x] Create a six-month milestone table with objectives, frontend work, backend work, dependencies, and completion gates.
+- [x] Break the 26-week controlled-release plan into 13 two-week sprints.
+- [x] Assign primary workstreams across three React Native and three Laravel developers.
+- [x] Add QA, integration, UAT, security, performance, and release-readiness checkpoints.
+- [x] Show the conditional six-month target alongside the recommended eight-to-ten-month full-scope estimate.
+- [x] Add open decisions and meeting actions that directly affect the schedule.
+- [x] Verify desktop, mobile, and print/PDF rendering.
+
+### Exit Criteria
+
+The PM can use one readable web page to discuss milestones, tasks, owners, delivery gates, and timeframe without navigating a slide deck.
+
+### Implemented In
+
+- `docs/presentation/delivery-timeframe.html`
+- `docs/presentation/delivery-timeframe-preview.png`
+- `docs/presentation/delivery-timeframe-mobile.png`
+- `docs/presentation/delivery-timeframe.pdf`
 
 ## Testing
 
@@ -288,5 +339,6 @@ No broken assets or navigation remain, the content fits its slides and print pag
 - [x] Inspect the Seller App and User App reference inventory and representative flows.
 - [x] Capture the PM's confirmed architecture, staffing, escrow, logistics, data, and ownership answers.
 - [x] Define the presentation content, delivery scenarios, and verification plan.
-- [ ] Build `supporting-materials/presentation/index.html`.
-- [ ] Verify the HTML deck and prepare it for the July 17, 2026 meeting.
+- [x] Build `docs/presentation/index.html`.
+- [x] Verify the HTML deck and prepare it for the July 17, 2026 meeting.
+- [x] Build and verify the detailed delivery timeframe report.
