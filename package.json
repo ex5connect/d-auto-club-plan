@@ -1,0 +1,5 @@
+{
+  "devDependencies": {
+    "ailovecode-workflow": "github:john-ltc/ailovecode-workflow"
+  }
+}
