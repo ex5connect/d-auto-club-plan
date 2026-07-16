@@ -1,0 +1,1541 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>D-Auto Club — Delivery Progress Tracker</title>
+<style>
+  :root{
+    color-scheme: light;
+    --page:#f9f9f7; --surface:#fcfcfb; --ink:#0b0b0b; --ink-2:#52514e; --muted:#898781;
+    --hairline:#e1e0d9; --border:rgba(11,11,11,.10);
+    --accent:#2a78d6; --track:#cde2fb; --wash:#eef4fc; --good:#0ca30c; --good-text:#006300; --brand:#d03b3b;
+    --shadow:rgba(11,11,11,.10);
+    --t-design:#e87ba4; --t-fe:#2a78d6; --t-be:#008300; --t-pm:#4a3aa7; --t-infra:#eb6834;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:where(:not([data-theme="light"])){
+      color-scheme: dark;
+      --page:#0d0d0d; --surface:#1a1a19; --ink:#ffffff; --ink-2:#c3c2b7; --muted:#898781;
+      --hairline:#2c2c2a; --border:rgba(255,255,255,.10);
+      --accent:#3987e5; --track:#0d366b; --wash:#14243a; --good:#0ca30c; --good-text:#0ca30c; --brand:#e66767;
+      --shadow:rgba(0,0,0,.55);
+      --t-design:#d55181; --t-fe:#3987e5; --t-be:#008300; --t-pm:#9085e9; --t-infra:#d95926;
+    }
+  }
+  :root[data-theme="dark"]{
+    color-scheme: dark;
+    --page:#0d0d0d; --surface:#1a1a19; --ink:#ffffff; --ink-2:#c3c2b7; --muted:#898781;
+    --hairline:#2c2c2a; --border:rgba(255,255,255,.10);
+    --accent:#3987e5; --track:#0d366b; --wash:#14243a; --good:#0ca30c; --good-text:#0ca30c; --brand:#e66767;
+    --shadow:rgba(0,0,0,.55);
+    --t-design:#d55181; --t-fe:#3987e5; --t-be:#008300; --t-pm:#9085e9; --t-infra:#d95926;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--page); color:var(--ink);
+    font:14px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;
+  }
+  a{color:var(--accent)}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 20px 60px}
+
+  /* ---------- header ---------- */
+  header.top{border-bottom:1px solid var(--hairline);background:var(--surface)}
+  .top-inner{max-width:1180px;margin:0 auto;padding:16px 20px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+  .brand h1{margin:0;font-size:19px;letter-spacing:.04em}
+  .brand h1 .red{color:var(--brand)}
+  button.btn{
+    font:600 12.5px/1 system-ui,-apple-system,"Segoe UI",sans-serif;
+    color:var(--ink); background:transparent; border:1px solid var(--border);
+    border-radius:8px; padding:8px 12px; cursor:pointer;
+  }
+  button.btn:hover{border-color:var(--ink-2)}
+  button.btn[aria-pressed="true"]{background:var(--ink);color:var(--page);border-color:var(--ink)}
+  button:focus-visible, .task input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+  /* ---------- shell: sidebar + main ---------- */
+  .shell{display:grid;grid-template-columns:200px minmax(0,1fr);gap:24px;margin-top:22px}
+  nav.side{position:sticky;top:14px;align-self:start;display:flex;flex-direction:column;gap:4px}
+  nav.side .side-title{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 6px;padding:0 12px}
+  nav.side button{
+    display:flex;align-items:center;gap:8px;width:100%;text-align:left;
+    padding:9px 12px;border-radius:9px;border:1px solid transparent;background:transparent;
+    color:var(--ink-2);font:600 13px/1.2 system-ui,-apple-system,"Segoe UI",sans-serif;cursor:pointer;
+  }
+  nav.side button:hover{border-color:var(--border)}
+  nav.side button[aria-current="true"]{background:var(--surface);border-color:var(--border);color:var(--ink)}
+  nav.side .cnt-badge{margin-left:auto;font-size:11px;font-weight:400;color:var(--muted);font-variant-numeric:tabular-nums}
+  .side-tools{display:flex;flex-direction:column;gap:4px;margin-top:18px;padding-top:14px;border-top:1px solid var(--hairline)}
+  .side-tools .side-title{margin:6px 0 4px}
+  .side-tools .btn-group{display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:8px}
+  .side-tools .btn-group button.btn{width:100%;text-align:left;font-weight:600;font-size:12px;padding:9px 12px;border:none;border-radius:0;border-bottom:1px solid var(--hairline);color:var(--ink-2)}
+  .side-tools .btn-group button.btn:last-child{border-bottom:none}
+  .side-tools .btn-group button.btn:hover{color:var(--ink);background:var(--page)}
+  @media (max-width:840px){
+    .shell{grid-template-columns:1fr;gap:14px}
+    nav.side{position:static;flex-direction:row;flex-wrap:wrap;align-items:center}
+    nav.side .side-title{display:none}
+    nav.side button{width:auto}
+    .side-tools{flex-direction:row;flex-wrap:wrap;margin-top:0;padding-top:0;border-top:none}
+    .side-tools .btn-group{flex-direction:row;margin-bottom:0}
+    .side-tools .btn-group button.btn{width:auto;border-bottom:none;border-right:1px solid var(--hairline)}
+    .side-tools .btn-group button.btn:last-child{border-right:none}
+  }
+
+  /* ---------- controls row ---------- */
+  .filters{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 14px}
+  .filters button{
+    font:600 12px/1 system-ui,-apple-system,"Segoe UI",sans-serif;
+    color:var(--ink-2); background:var(--surface); border:1px solid var(--border);
+    border-radius:999px; padding:7px 12px; cursor:pointer;
+  }
+  .filters button[aria-pressed="true"]{color:var(--ink);border-color:var(--ink)}
+
+  /* ---------- views ---------- */
+  .view{display:none}
+  .view.active{display:block;animation:viewIn .3s ease both}
+  @keyframes viewIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+  /* ---------- dashboard (overview) ---------- */
+  .dash{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:30px 32px}
+  .hero-row{display:flex;flex-wrap:wrap;gap:24px 48px;align-items:flex-start;justify-content:space-between}
+  .hero-main{
+    flex:1;min-width:300px;max-width:660px;
+    background:var(--wash);border:1px solid var(--border);border-radius:12px;padding:24px 28px;
+  }
+  .hero-label{font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2);margin:0}
+  .hero-num{font-size:76px;font-weight:700;line-height:1.02;margin:8px 0 14px}
+  .hero-sub{font-size:13px;color:var(--ink-2);margin:12px 0 0}
+  .hero-target{font-size:13px;color:var(--ink-2);font-weight:600;margin:14px 0 0}
+  .meter{height:8px;border-radius:4px;background:var(--track);overflow:hidden;min-width:40px}
+  .meter > i{display:block;height:100%;border-radius:4px;background:var(--accent);width:0%;transition:width .6s cubic-bezier(.22,1,.36,1)}
+  .meter.big{height:14px;border-radius:7px}
+  .meter.big > i{border-radius:7px;transition:width 1s cubic-bezier(.22,1,.36,1)}
+
+  .subhead{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 14px}
+  .tile,.size-tile,.delay-card,.g-item,button.team-row{
+    transition:transform .18s ease, box-shadow .18s ease, border-color .15s ease;
+  }
+  .tile:hover,.size-tile:hover,.delay-card:hover,.g-item:hover{
+    transform:translateY(-3px);box-shadow:0 8px 22px var(--shadow);
+  }
+  .phase-tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  @media (max-width:640px){.phase-tiles{grid-template-columns:1fr}}
+  .tile{border:1px solid var(--border);border-radius:10px;padding:16px 18px}
+  .tile .t-name{font-size:13px;font-weight:600;margin:0}
+  .tile .t-time{font-size:11.5px;color:var(--muted);margin:2px 0 14px}
+  .tile .t-val{font-size:20px;font-weight:600;margin:10px 0 3px}
+  .tile .t-count{font-size:11.5px;color:var(--ink-2)}
+
+  .team-rows{margin-top:18px;display:grid;gap:10px}
+  button.team-row{
+    display:grid;grid-template-columns:110px 1fr 74px;gap:14px;align-items:center;width:100%;
+    background:transparent;border:1px solid transparent;border-radius:8px;padding:7px 8px;cursor:pointer;
+    font:inherit;color:inherit;text-align:left;
+  }
+  button.team-row:hover{border-color:var(--border)}
+  .team-row .cnt{font-size:12px;color:var(--ink-2);text-align:right;font-variant-numeric:tabular-nums}
+  .chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-2);white-space:nowrap}
+  .dot{width:8px;height:8px;border-radius:50%;flex:none}
+
+  .size-tiles{
+    display:grid;grid-template-columns:repeat(2,minmax(160px,1fr));gap:14px;
+    flex:1;min-width:300px;max-width:440px;align-self:stretch;
+  }
+  .size-tile{
+    border:1px solid var(--border);border-radius:10px;padding:16px 20px;
+    display:flex;flex-direction:column;justify-content:center;
+  }
+  .size-tile .size-val{font-size:28px;font-weight:600;line-height:1.1}
+  .size-tile .size-lbl{font-size:12px;color:var(--muted);margin-top:4px}
+  @media (max-width:760px){.size-tiles{align-self:auto;max-width:none}}
+
+  /* ---------- milestone summary (overview) ---------- */
+  .sum-phase{margin-top:24px}
+  .sum-row{display:grid;grid-template-columns:1fr 130px 80px;gap:12px;align-items:center;padding:9px 2px;border-bottom:1px solid var(--hairline)}
+  .sum-row:last-child{border-bottom:none}
+  .sum-name{font-size:13px;font-weight:600}
+  .sum-name .weeks{font-weight:400;color:var(--muted);font-size:12px;margin-left:8px}
+  .sum-row .cnt{font-size:12px;color:var(--ink-2);text-align:right;font-variant-numeric:tabular-nums}
+
+  /* ---------- checklist (team views) ---------- */
+  .team-head{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;margin-bottom:10px}
+  .team-head h2{margin:0;font-size:18px}
+  .team-head .meter{flex:1;min-width:120px;max-width:280px}
+  .team-head .cnt{font-size:12.5px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+  .team-head .filters{margin:0 0 0 auto}
+  section.phase{margin-top:24px}
+  .phase-head{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:baseline;justify-content:space-between;margin-bottom:4px}
+  .phase-head h3{margin:0;font-size:15.5px}
+  .phase-head .time{color:var(--muted);font-size:12.5px}
+  .phase-goal{margin:2px 0 12px;color:var(--ink-2);font-size:13px;max-width:72ch}
+
+  details.ms{background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:10px;overflow:hidden}
+  details.ms > summary{
+    list-style:none; cursor:pointer; padding:13px 16px;
+    display:grid; grid-template-columns:14px 1fr 120px 90px; gap:12px; align-items:center;
+  }
+  details.ms > summary::-webkit-details-marker{display:none}
+  .caret{color:var(--muted);font-size:11px;transition:transform .15s}
+  details[open] .caret{transform:rotate(90deg)}
+  .ms-title{font-weight:600;font-size:13.5px}
+  .ms-title .weeks{font-weight:400;color:var(--muted);font-size:12px;margin-left:8px;white-space:nowrap}
+  .ms-cnt{font-size:12px;color:var(--ink-2);text-align:right;font-variant-numeric:tabular-nums}
+  @media (max-width:640px){
+    details.ms > summary{grid-template-columns:14px 1fr 70px}
+    .ms-meter-wrap{display:none}
+  }
+  .ms-body{border-top:1px solid var(--hairline);padding:6px 16px 12px}
+  ul.tasks{list-style:none;margin:0;padding:0}
+  li.task{border-bottom:1px solid var(--hairline);display:flex;align-items:flex-start}
+  li.task:last-child{border-bottom:none}
+  li.task label{flex:1;display:grid;grid-template-columns:20px 56px 1fr;gap:10px;align-items:start;padding:9px 2px;cursor:pointer}
+  li.task input{width:16px;height:16px;margin:2px 0 0;accent-color:var(--good)}
+  li.task input:checked{animation:pop .3s ease}
+  @keyframes pop{0%{transform:scale(1)}45%{transform:scale(1.35)}100%{transform:scale(1)}}
+  li.task.flash{animation:rowFlash .8s ease}
+  @keyframes rowFlash{0%{background:rgba(12,163,12,.16)}100%{background:transparent}}
+  .num{font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums;padding-top:3px;white-space:nowrap}
+  .task-text{font-size:13.5px;transition:color .25s ease}
+  li.task.done .task-text{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--hairline)}
+  .exit{margin:10px 0 2px;font-size:12px;color:var(--muted)}
+  .exit b{color:var(--ink-2);font-weight:600}
+  .hidden{display:none !important}
+
+  /* ---------- figma gallery ---------- */
+  .gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px}
+  .g-item{
+    margin:0;background:var(--surface);border:1px solid var(--border);border-radius:10px;
+    overflow:hidden;cursor:zoom-in;
+  }
+  .g-item:hover{border-color:var(--ink-2)}
+  .g-item .thumb-box{
+    height:170px;overflow:hidden;
+    background:linear-gradient(100deg,var(--page) 40%,var(--hairline) 50%,var(--page) 60%) 0 0/200% 100%;
+    animation:shimmer 1.2s linear infinite;
+  }
+  .g-item:hover img{transform:scale(1.05)}
+  .g-item.g-done .thumb-box{animation:none;background:var(--page)}
+  @keyframes shimmer{to{background-position:-200% 0}}
+  .g-item img{
+    display:block;width:100%;height:170px;object-fit:cover;object-position:top;
+    opacity:0;transition:opacity .3s ease, transform .3s ease;
+  }
+  .g-item.g-done img{opacity:1}
+  .g-item figcaption{font-size:12px;color:var(--ink-2);padding:8px 10px;border-top:1px solid var(--hairline)}
+  .lightbox{
+    position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.88);
+    display:flex;align-items:center;justify-content:center;gap:10px;padding:20px;
+    overflow:hidden;animation:lbFade .22s ease;
+  }
+  .lightbox[hidden]{display:none}
+  .lightbox figure{margin:0;text-align:center;max-width:calc(100vw - 140px);animation:lbIn .25s ease}
+  @keyframes lbFade{from{opacity:0}}
+  @keyframes lbIn{from{opacity:0;transform:scale(.96)}}
+  .lightbox img{
+    max-width:100%;max-height:84vh;border-radius:6px;background:#fff;
+    cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;
+  }
+  .lightbox img.dragging{cursor:grabbing}
+  .lightbox figcaption{color:#fff;font-size:13px;margin-top:10px;position:relative;z-index:1}
+  .lb-btn{
+    flex:none;background:rgba(255,255,255,.12);color:#fff;border:none;border-radius:50%;
+    width:42px;height:42px;font-size:20px;line-height:1;cursor:pointer;position:relative;z-index:2;
+  }
+  .lb-btn:hover{background:rgba(255,255,255,.25)}
+  .lb-close{position:absolute;top:16px;right:16px}
+  .lb-zoom{position:absolute;top:16px;left:16px;display:flex;gap:8px;z-index:2}
+  .lb-z-reset{width:auto;border-radius:21px;padding:0 16px;font-size:13px;font-weight:600}
+
+  /* ---------- potential delays ---------- */
+  .delay-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 22px;margin-bottom:12px}
+  .delay-card .dc-head{display:flex;flex-wrap:wrap;align-items:center;gap:10px;font-weight:600;font-size:13.5px;margin-bottom:8px}
+  .delay-card ul{margin:0;padding-left:20px}
+  .delay-card li{padding:5px 0;font-size:13.5px}
+  .delay-meta{display:block;font-size:12px;color:var(--muted);margin-top:1px}
+  .delay-meta.known{color:var(--ink-2);font-weight:600}
+
+  /* ---------- edit mode ---------- */
+  .tools{display:none;gap:4px;padding:8px 0 0 6px}
+  body.editing .tools{display:flex}
+  .tools button{
+    font-size:12px;line-height:1;padding:5px 7px;border-radius:6px;cursor:pointer;
+    background:transparent;border:1px solid var(--border);color:var(--ink-2);
+  }
+  .tools button:hover{border-color:var(--ink-2)}
+  .add-task{display:inline-flex;margin:8px 0 2px}
+  .add-task button{
+    font:600 12px/1 system-ui,-apple-system,"Segoe UI",sans-serif;
+    color:var(--accent);background:transparent;border:1px dashed var(--border);
+    border-radius:8px;padding:7px 12px;cursor:pointer;
+  }
+  .add-task button:hover{border-color:var(--accent)}
+
+  dialog{
+    border:1px solid var(--border);border-radius:14px;background:var(--surface);color:var(--ink);
+    padding:20px;max-width:440px;width:calc(100% - 40px);
+  }
+  dialog::backdrop{background:rgba(0,0,0,.45)}
+  dialog h3{margin:0 0 14px;font-size:15px}
+  dialog label{display:block;font-size:12px;font-weight:600;color:var(--ink-2);margin:10px 0 4px}
+  dialog input[type="text"], dialog select{
+    width:100%;padding:9px 10px;border:1px solid var(--border);border-radius:8px;
+    background:var(--page);color:var(--ink);font:13.5px/1.3 system-ui,-apple-system,"Segoe UI",sans-serif;
+  }
+  dialog menu{display:flex;gap:8px;justify-content:flex-end;margin:18px 0 0;padding:0}
+
+  footer.foot{margin-top:34px;color:var(--muted);font-size:12px;border-top:1px solid var(--hairline);padding-top:14px}
+  footer.foot p{margin:4px 0}
+
+  /* ---------- celebration toast ---------- */
+  #toast{
+    position:fixed;left:50%;bottom:30px;z-index:60;pointer-events:none;
+    transform:translate(-50%,16px);opacity:0;
+    background:var(--ink);color:var(--page);padding:11px 20px;border-radius:999px;
+    font-weight:600;font-size:13.5px;box-shadow:0 10px 28px var(--shadow);
+    transition:transform .35s cubic-bezier(.22,1,.36,1), opacity .35s ease;
+    max-width:calc(100vw - 40px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  #toast.show{transform:translate(-50%,0);opacity:1}
+
+
+  /* ---------- print ---------- */
+  @media print{
+    body{background:#fff;color:#000}
+    .toolbar,.filters,nav.side,.tools,.add-task,.lightbox,#view-gallery{display:none !important}
+    .shell{display:block}
+    .view{display:block !important;margin-bottom:20px}
+    .dash,details.ms{border-color:#ccc}
+    details.ms{break-inside:avoid}
+    a{color:inherit}
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top-inner">
+    <div class="brand">
+      <h1><span class="red">D</span>-AUTO CLUB · Delivery Progress Tracker</h1>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="shell">
+
+    <nav class="side" aria-label="Sections">
+      <p class="side-title">Sections</p>
+      <div id="sideNav"></div>
+      <div class="side-tools">
+        <p class="side-title">Progress data</p>
+        <div class="btn-group">
+          <button class="btn" id="btnExport" type="button">Export progress</button>
+          <button class="btn" id="btnImport" type="button">Import progress</button>
+          <button class="btn" id="btnReset" type="button">Reset</button>
+        </div>
+        <input type="file" id="fileImport" accept="application/json" hidden>
+        <p class="side-title">Page</p>
+        <div class="btn-group">
+          <button class="btn" id="btnTheme" type="button">Theme</button>
+          <button class="btn" id="btnData" type="button">Download data</button>
+        </div>
+      </div>
+    </nav>
+
+    <main class="main">
+      <section class="view active" id="view-overview" data-view="overview" aria-label="Overview">
+        <div class="dash">
+          <div class="hero-row">
+            <div class="hero-main">
+              <p class="hero-label">Overall delivery progress</p>
+              <div class="hero-num"><span id="heroPct">0</span>%</div>
+              <div class="meter big" role="img" aria-label="Overall progress"><i id="heroBar"></i></div>
+              <p class="hero-sub"><span id="heroDone">0</span> of <span id="heroTotal">0</span> tasks completed · <span id="heroLeft">0</span> remaining</p>
+              <p class="hero-target" id="targetLine"></p>
+              <p class="hero-sub" id="lastUpdate"></p>
+            </div>
+            <div class="size-tiles" id="teamSize"></div>
+          </div>
+          <p class="subhead" style="margin-top:34px">Progress by phase</p>
+          <div class="phase-tiles" id="phaseTiles"></div>
+          <p class="subhead" style="margin-top:34px">Progress by team</p>
+          <div class="team-rows" id="teamRows"></div>
+          <div id="sepStats"></div>
+        </div>
+        <div id="msSummary"></div>
+      </section>
+
+      <div id="teamViews"></div>
+    </main>
+
+  </div>
+
+  <footer class="foot">
+    <p>Progress is saved automatically in this browser. To share status, use <b>Export progress</b> and send the file; the recipient uses <b>Import progress</b>.</p>
+    <p>The checklist is defined in <b>progress-tracker-data.json</b>. To make the current progress (or task changes) permanent for everyone: click <b>Download data</b>, then run <b>sync-tracker.bat</b> in the docs folder — it replaces the data file with your download and updates this page's embedded copy automatically.</p>
+    <p>Scope sources: backend implementation plan (workflow task 20260716T1434), Seller/User App Figma inventory (workflow task 20260716T1615), and the meeting-confirmed assumptions. Target release agreed: 20 December 2026.</p>
+  </footer>
+</div>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<div class="lightbox" id="lightbox" hidden>
+  <button type="button" class="lb-btn lb-close" aria-label="Close">✕</button>
+  <div class="lb-zoom">
+    <button type="button" class="lb-btn" data-z="out" aria-label="Zoom out">−</button>
+    <button type="button" class="lb-btn lb-z-reset" data-z="reset">Reset</button>
+    <button type="button" class="lb-btn" data-z="in" aria-label="Zoom in">+</button>
+  </div>
+  <button type="button" class="lb-btn lb-prev" aria-label="Previous image">‹</button>
+  <figure>
+    <img id="lbImg" src="" alt="" draggable="false">
+    <figcaption id="lbCap"></figcaption>
+  </figure>
+  <button type="button" class="lb-btn lb-next" aria-label="Next image">›</button>
+</div>
+
+<dialog id="taskDialog">
+  <form method="dialog" id="taskForm">
+    <h3 id="dlgTitle">Add task</h3>
+    <label for="dlgText">Task description</label>
+    <input type="text" id="dlgText" required maxlength="220" autocomplete="off">
+    <menu>
+      <button class="btn" value="cancel" formnovalidate type="submit">Cancel</button>
+      <button class="btn" value="ok" type="submit">Save</button>
+    </menu>
+  </form>
+</dialog>
+
+<!-- Embedded copy of progress-tracker-data.json. Fallback for file:// usage where
+     fetch() is blocked by the browser. Keep in sync with the JSON file. -->
+<script type="application/json" id="tracker-data">
+{
+  "project": "D-Auto Club",
+  "version": 4,
+  "target": { "label": "20 Dec 2026", "date": "2026-12-20" },
+  "teams": {
+    "design": { "label": "Design", "prefix": "DS", "separate": true },
+    "fe": { "label": "Frontend", "prefix": "FE", "size": 3 },
+    "be": { "label": "Backend", "prefix": "BE", "size": 3 },
+    "pm": { "label": "PM", "prefix": "PM" },
+    "infra": { "label": "Infra", "prefix": "IF" }
+  },
+  "delays": [
+    {
+      "team": "fe",
+      "title": "Frontend team must handle other projects",
+      "items": [
+        { "name": "Booking notification", "when": "TBC", "effort": "TBC" },
+        { "name": "Video streaming", "when": "TBC", "effort": "TBC" },
+        { "name": "Telegram game", "when": "TBC", "effort": "TBC" },
+        { "name": "V5 frontend new feature", "when": "TBC", "effort": "TBC" }
+      ]
+    },
+    {
+      "team": "be",
+      "title": "Backend team must handle other projects",
+      "items": [
+        { "name": "IG V5 backend take-over from outsource", "when": "TBC", "effort": "TBC" },
+        { "name": "IG V5 backend new feature", "when": "TBC", "effort": "TBC" },
+        { "name": "AI chat bot", "when": "TBC", "effort": "TBC" },
+        { "name": "Telegram spam prevention bot", "when": "TBC", "effort": "TBC" }
+      ]
+    }
+  ],
+  "gallery": [
+    {
+      "title": "Seller App — Figma designs",
+      "dir": "../workflow/tasks/20260716T1615_understand-figma/supporting-materials/Seller App/",
+      "images": [
+        { "file": "Splashscreen + Login Page.png", "caption": "Splash Screen + Login Page" },
+        { "file": "Seller-Profile.png", "caption": "Seller Profile" },
+        { "file": "Car-Profile.png", "caption": "Car Profile" },
+        { "file": "Spare-Part-Profile.png", "caption": "Spare-Part Profile" },
+        { "file": "Car-Accessories-Profile.png", "caption": "Car Accessories Profile" },
+        { "file": "Car-Plate.png", "caption": "Car Plate" },
+        { "file": "Car Switch-Sell.png", "caption": "Car Switch-Sell" },
+        { "file": "Location.png", "caption": "Location" },
+        { "file": "Option-Address.png", "caption": "Option-Address" },
+        { "file": "Selection.png", "caption": "Selection" },
+        { "file": "Order Section Seller.png", "caption": "Order Section (Seller)" },
+        { "file": "Order Detail Content (CarAcc).png", "caption": "Order Detail Content" },
+        { "file": "Seller-Chat-Status.png", "caption": "Seller Chat Status" }
+      ]
+    },
+    {
+      "title": "User App — Figma designs",
+      "dir": "../workflow/tasks/20260716T1615_understand-figma/supporting-materials/User App/",
+      "images": [
+        { "file": "splash screen + login page.png", "caption": "Splash Screen + Login Page" },
+        { "file": "landing page to car model list page flow.png", "caption": "Landing Page → Car Model List flow" },
+        { "file": "car model list overlay.png", "caption": "Car Model List Overlay" },
+        { "file": "Category list - en.png", "caption": "Category List (English)" },
+        { "file": "Category list - zh.png", "caption": "Category List (Chinese)" },
+        { "file": "spare parts.png", "caption": "Spare Parts" },
+        { "file": "accessories section.png", "caption": "Accessories Section" },
+        { "file": "second hand car page.png", "caption": "Second Hand Car Page" },
+        { "file": "car plate.png", "caption": "Car Plate" },
+        { "file": "workshop.png", "caption": "Workshop" },
+        { "file": "Charge-EV.png", "caption": "Charge-EV" },
+        { "file": "chat.png", "caption": "Chat" },
+        { "file": "community group.png", "caption": "Community Group" },
+        { "file": "review & report.png", "caption": "Review & Report" },
+        { "file": "user profile.png", "caption": "User Profile" },
+        { "file": "Component.png", "caption": "Component Library" }
+      ]
+    }
+  ],
+  "phases": [
+    {
+      "id": "p1",
+      "name": "Phase 1 · Seller App",
+      "time": "Months 1–2 · 15 Jul – 8 Sep 2026",
+      "goal": "Deliver a working Seller App internal beta together with the backend foundation both apps will share.",
+      "milestones": [
+        {
+          "id": "1.0",
+          "name": "Kickoff & key decisions",
+          "weeks": "Week 1",
+          "exit": "All blocking decisions have owners and recorded answers; the scope baseline is approved.",
+          "tasks": [
+            { "id": "1.0.1", "text": "Lock the MVP scope and the deferral order for both apps", "team": "pm" },
+            { "id": "1.0.2", "text": "Select the escrow provider; confirm payment-link, webhook, refund, and dispute capabilities", "team": "pm" },
+            { "id": "1.0.3", "text": "Confirm seller types, verification documents, and onboarding rules", "team": "pm" },
+            { "id": "1.0.4", "text": "Confirm the vehicle/compatibility data source and data ownership", "team": "pm" },
+            { "id": "1.0.5", "text": "Confirm English and Chinese as launch languages", "team": "pm", "done": true },
+            { "id": "1.0.6", "text": "Confirm minimum Android/iOS versions and the list of test devices", "team": "pm" },
+            { "id": "1.0.7", "text": "Approve the minimal admin dashboard scope", "team": "pm" },
+            { "id": "1.0.8", "text": "Set up task tracking and the weekly progress-reporting cadence", "team": "pm" }
+          ]
+        },
+        {
+          "id": "1.1",
+          "name": "Seller App UI design — completed",
+          "weeks": "Completed · Jul 2026",
+          "exit": "All Seller App screens are designed and exported. New design tasks are added here if scope changes.",
+          "tasks": [
+            { "id": "1.1.1", "text": "Splash Screen + Login Page — UI design", "team": "design", "done": true },
+            { "id": "1.1.2", "text": "Seller Profile — UI design", "team": "design", "done": true },
+            { "id": "1.1.3", "text": "Car Profile — UI design", "team": "design", "done": true },
+            { "id": "1.1.4", "text": "Spare-Part Profile — UI design", "team": "design", "done": true },
+            { "id": "1.1.5", "text": "Car Accessories Profile — UI design", "team": "design", "done": true },
+            { "id": "1.1.6", "text": "Car Plate — UI design", "team": "design", "done": true },
+            { "id": "1.1.7", "text": "Car Switch-Sell — UI design", "team": "design", "done": true },
+            { "id": "1.1.8", "text": "Location — UI design", "team": "design", "done": true },
+            { "id": "1.1.9", "text": "Option-Address — UI design", "team": "design", "done": true },
+            { "id": "1.1.10", "text": "Selection — UI design", "team": "design", "done": true },
+            { "id": "1.1.11", "text": "Order Section (Seller) — UI design", "team": "design", "done": true },
+            { "id": "1.1.12", "text": "Order Detail Content — UI design", "team": "design", "done": true },
+            { "id": "1.1.13", "text": "Seller Chat Status — UI design", "team": "design", "done": true }
+          ]
+        },
+        {
+          "id": "1.2",
+          "name": "Platform & backend foundation",
+          "weeks": "Weeks 1–4",
+          "exit": "Authenticated users and approved sellers exist through documented APIs on staging; app builds are distributed automatically.",
+          "tasks": [
+            { "id": "1.2.1", "text": "Initialize the Laravel project: environments, CI, queues, cache, storage", "team": "be", "done": true },
+            { "id": "1.2.2", "text": "Define API standards: versioning, validation, errors, pagination, OpenAPI docs", "team": "be" },
+            { "id": "1.2.3", "text": "Implement social login (Apple, Google, Facebook, WeChat) and the token lifecycle", "team": "be" },
+            { "id": "1.2.4", "text": "Implement users, profiles, devices, roles, and permissions", "team": "be" },
+            { "id": "1.2.5", "text": "Implement seller onboarding: seller types, verification documents, status workflow", "team": "be" },
+            { "id": "1.2.6", "text": "Implement address and region master data (Malaysia / China)", "team": "be" },
+            { "id": "1.2.7", "text": "Implement the vehicle taxonomy (brand, series, variant, year) and its import pipeline", "team": "be" },
+            { "id": "1.2.8", "text": "Implement media upload with storage, type, and size validation", "team": "be" },
+            { "id": "1.2.9", "text": "Set up the staging environment and monitoring", "team": "infra" },
+            { "id": "1.2.10", "text": "Set up iOS/Android build pipelines and internal distribution", "team": "infra" },
+            { "id": "1.2.11", "text": "React Native Expo workspace setup", "team": "fe", "done": true },
+            { "id": "1.2.12", "text": "Google Play and App Store account setup", "team": "fe", "done": true }
+          ]
+        },
+        {
+          "id": "1.3",
+          "name": "Seller App modules",
+          "weeks": "Weeks 2–8",
+          "exit": "Every Seller App module works against the staging APIs.",
+          "tasks": [
+            { "id": "1.3.1", "text": "App layout and navigation structure", "team": "fe", "done": true },
+            { "id": "1.3.2", "text": "Splash Screen + Login Page — seller login and registration", "team": "fe", "done": true },
+            { "id": "1.3.3", "text": "Seller Profile — view and edit profile", "team": "fe", "done": true },
+            { "id": "1.3.4", "text": "Business account setup — seller type and store setup", "team": "fe", "done": true },
+            { "id": "1.3.5", "text": "Selection — category, attribute, and vehicle compatibility pickers", "team": "fe" },
+            { "id": "1.3.6", "text": "Spare-Part Profile — spare part product create/edit", "team": "fe" },
+            { "id": "1.3.7", "text": "Car Accessories Profile — accessories product create/edit", "team": "fe" },
+            { "id": "1.3.8", "text": "Car Profile — used-car listing create/edit", "team": "fe" },
+            { "id": "1.3.9", "text": "Car Switch-Sell — switch car to sell flow", "team": "fe" },
+            { "id": "1.3.10", "text": "Car Plate — car plate listing create/edit", "team": "fe" },
+            { "id": "1.3.11", "text": "Location — map and region location picker (Malaysia / China)", "team": "fe" },
+            { "id": "1.3.12", "text": "Option-Address — address management", "team": "fe" },
+            { "id": "1.3.13", "text": "Product listing management — stock, price, publish/unpublish", "team": "fe" },
+            { "id": "1.3.14", "text": "Order Section (Seller) — order queues: unpaid, to ship, shipped, completed, cancelled, refunded", "team": "fe" },
+            { "id": "1.3.15", "text": "Order Detail Content — order detail with items, buyer info, and actions", "team": "fe" },
+            { "id": "1.3.16", "text": "Shipment — courier and tracking-number submission", "team": "fe" },
+            { "id": "1.3.17", "text": "Seller Chat — conversations, messages, product/order cards", "team": "fe" },
+            { "id": "1.3.18", "text": "Seller Chat — escrow payment-link sending and status display", "team": "fe" },
+            { "id": "1.3.19", "text": "Seller notifications and settings", "team": "fe" },
+            { "id": "1.3.20", "text": "Loading, empty, error, and offline states across all seller modules", "team": "fe" }
+          ]
+        },
+        {
+          "id": "1.4",
+          "name": "Seller platform APIs",
+          "weeks": "Weeks 3–8",
+          "exit": "All seller flows are supported by documented, policy-protected APIs.",
+          "tasks": [
+            { "id": "1.4.1", "text": "Product/SKU models: categories, attributes, media, price, stock, publication", "team": "be" },
+            { "id": "1.4.2", "text": "Product CRUD APIs with ownership and moderation status", "team": "be" },
+            { "id": "1.4.3", "text": "Product-to-vehicle compatibility mapping APIs", "team": "be" },
+            { "id": "1.4.4", "text": "Used-car and car-plate listing APIs", "team": "be" },
+            { "id": "1.4.5", "text": "Chat: conversations, messages, read state, media, realtime delivery", "team": "be" },
+            { "id": "1.4.6", "text": "Product/order chat cards and push events", "team": "be" },
+            { "id": "1.4.7", "text": "Escrow payment-link validation (allowlist) and status tracking", "team": "be" },
+            { "id": "1.4.8", "text": "Order model and state machine: unpaid → shipped → completed / cancelled / refunded", "team": "be" },
+            { "id": "1.4.9", "text": "Seller order-management and tracking-submission APIs", "team": "be" },
+            { "id": "1.4.10", "text": "Seller notification APIs", "team": "be" },
+            { "id": "1.4.11", "text": "Seed data and API documentation for frontend integration", "team": "be" }
+          ]
+        },
+        {
+          "id": "1.5",
+          "name": "Gate 1 — Seller App internal beta",
+          "weeks": "Weeks 7–8",
+          "exit": "Management signs off the end-to-end seller journey on the internal beta.",
+          "tasks": [
+            { "id": "1.5.1", "text": "Frontend–backend integration testing of all seller flows", "team": "fe" },
+            { "id": "1.5.2", "text": "Fix integration defects found in seller-flow testing", "team": "be" },
+            { "id": "1.5.3", "text": "Distribute the Seller App internal beta (TestFlight / internal track)", "team": "infra" },
+            { "id": "1.5.4", "text": "End-to-end demo: onboard seller → publish product → order → escrow link → ship", "team": "pm" },
+            { "id": "1.5.5", "text": "Management review and Phase 1 sign-off", "team": "pm" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "p2",
+      "name": "Phase 2 · Buyer App",
+      "time": "Months 3–4 · 9 Sep – 3 Nov 2026",
+      "goal": "Deliver a working Buyer App internal beta that completes the full buyer-to-seller marketplace journey, plus the minimal admin dashboard.",
+      "milestones": [
+        {
+          "id": "2.1",
+          "name": "Buyer App UI design — completed",
+          "weeks": "Completed · Jul 2026",
+          "exit": "All Buyer App screens are designed and exported. New design tasks are added here if scope changes.",
+          "tasks": [
+            { "id": "2.1.1", "text": "Splash Screen + Login Page — UI design", "team": "design", "done": true },
+            { "id": "2.1.2", "text": "Landing Page → Car Model List flow — UI design", "team": "design", "done": true },
+            { "id": "2.1.3", "text": "Car Model List Overlay — UI design", "team": "design", "done": true },
+            { "id": "2.1.4", "text": "Category List (English & Chinese) — UI design", "team": "design", "done": true },
+            { "id": "2.1.5", "text": "Spare Parts — UI design", "team": "design", "done": true },
+            { "id": "2.1.6", "text": "Accessories Section — UI design", "team": "design", "done": true },
+            { "id": "2.1.7", "text": "Second Hand Car Page — UI design", "team": "design", "done": true },
+            { "id": "2.1.8", "text": "Car Plate — UI design", "team": "design", "done": true },
+            { "id": "2.1.9", "text": "Workshop — UI design", "team": "design", "done": true },
+            { "id": "2.1.10", "text": "Charge-EV — UI design", "team": "design", "done": true },
+            { "id": "2.1.11", "text": "Chat — UI design", "team": "design", "done": true },
+            { "id": "2.1.12", "text": "Community Group — UI design", "team": "design", "done": true },
+            { "id": "2.1.13", "text": "Review & Report — UI design", "team": "design", "done": true },
+            { "id": "2.1.14", "text": "User Profile — UI design", "team": "design", "done": true },
+            { "id": "2.1.15", "text": "Component library — UI design", "team": "design", "done": true }
+          ]
+        },
+        {
+          "id": "2.2",
+          "name": "Buyer App core modules",
+          "weeks": "Weeks 9–12",
+          "exit": "A buyer can register, add a car, and find compatible parts on staging.",
+          "tasks": [
+            { "id": "2.2.1", "text": "Splash Screen + Login Page — buyer login and registration", "team": "fe" },
+            { "id": "2.2.2", "text": "User Profile — profile, settings, and addresses", "team": "fe" },
+            { "id": "2.2.3", "text": "Landing Page — home and car model list flow", "team": "fe" },
+            { "id": "2.2.4", "text": "Car Model List Overlay — brand/series/variant/year picker and My Cars", "team": "fe" },
+            { "id": "2.2.5", "text": "Category List — category browsing in English and Chinese", "team": "fe" },
+            { "id": "2.2.6", "text": "Spare Parts — listing, detail, compatibility badge, search, filters", "team": "fe" },
+            { "id": "2.2.7", "text": "Accessories Section — listing, detail, search, filters", "team": "fe" },
+            { "id": "2.2.8", "text": "Wishlist and favourites", "team": "fe" },
+            { "id": "2.2.9", "text": "Review & Report — reviews and report submission", "team": "fe" }
+          ]
+        },
+        {
+          "id": "2.3",
+          "name": "Buyer App extended modules",
+          "weeks": "Weeks 11–16",
+          "exit": "All buyer journeys work end-to-end against the staging APIs.",
+          "tasks": [
+            { "id": "2.3.1", "text": "Second Hand Car Page — used-car listing, detail, contact seller", "team": "fe" },
+            { "id": "2.3.2", "text": "Car Plate — listing, detail, contact", "team": "fe" },
+            { "id": "2.3.3", "text": "Workshop — directory and details", "team": "fe" },
+            { "id": "2.3.4", "text": "Charge-EV — EV charging stations", "team": "fe" },
+            { "id": "2.3.5", "text": "Community Group — community links", "team": "fe" },
+            { "id": "2.3.6", "text": "Seller storefront view", "team": "fe" },
+            { "id": "2.3.7", "text": "Chat — buyer chat with product/order cards", "team": "fe" },
+            { "id": "2.3.8", "text": "Chat — escrow payment-link opening and payment-status display", "team": "fe" },
+            { "id": "2.3.9", "text": "Orders — list, detail, tracking, cancel/refund/return requests", "team": "fe" },
+            { "id": "2.3.10", "text": "Buyer notifications", "team": "fe" },
+            { "id": "2.3.11", "text": "Loading, empty, error, offline, and expired-link states", "team": "fe" }
+          ]
+        },
+        {
+          "id": "2.4",
+          "name": "Buyer platform APIs",
+          "weeks": "Weeks 9–14",
+          "exit": "All buyer flows are supported by documented APIs.",
+          "tasks": [
+            { "id": "2.4.1", "text": "Buyer profile and My Cars APIs", "team": "be" },
+            { "id": "2.4.2", "text": "Catalogue browsing, keyword search, filters, sorting, pagination", "team": "be" },
+            { "id": "2.4.3", "text": "Compatibility-filtered search for the selected car", "team": "be" },
+            { "id": "2.4.4", "text": "Wishlist, review, and report APIs", "team": "be" },
+            { "id": "2.4.5", "text": "Used-car, car-plate, workshop, EV-charging, and community APIs", "team": "be" },
+            { "id": "2.4.6", "text": "Buyer chat and seller storefront APIs", "team": "be" },
+            { "id": "2.4.7", "text": "Buyer order lifecycle: view, cancel, refund/return requests", "team": "be" },
+            { "id": "2.4.8", "text": "Escrow link status events and provider webhook consumption", "team": "be" },
+            { "id": "2.4.9", "text": "Buyer notification APIs", "team": "be" }
+          ]
+        },
+        {
+          "id": "2.5",
+          "name": "Minimal admin dashboard",
+          "weeks": "Weeks 13–16",
+          "exit": "Operations can manage users, sellers, listings, and exceptions without database access.",
+          "tasks": [
+            { "id": "2.5.1", "text": "Admin authentication, roles, permissions, and audit logs", "team": "be" },
+            { "id": "2.5.2", "text": "User and seller management with verification approval", "team": "be" },
+            { "id": "2.5.3", "text": "Product, listing, and content moderation APIs", "team": "be" },
+            { "id": "2.5.4", "text": "Order, escrow-exception, and tracking-exception views", "team": "be" },
+            { "id": "2.5.5", "text": "Admin web UI for the approved minimal scope", "team": "fe" }
+          ]
+        },
+        {
+          "id": "2.6",
+          "name": "Gate 2 — Buyer App internal beta",
+          "weeks": "Weeks 15–16",
+          "exit": "Management signs off the full buyer-to-seller journey on the internal beta.",
+          "tasks": [
+            { "id": "2.6.1", "text": "Cross-app integration testing of the full buyer↔seller journey", "team": "fe" },
+            { "id": "2.6.2", "text": "Fix integration defects found in buyer-flow testing", "team": "be" },
+            { "id": "2.6.3", "text": "Distribute the Buyer App internal beta", "team": "infra" },
+            { "id": "2.6.4", "text": "End-to-end demo: browse → chat → escrow payment → ship → track → complete", "team": "pm" },
+            { "id": "2.6.5", "text": "Management review and Phase 2 sign-off", "team": "pm" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "p3",
+      "name": "Phase 3 · UAT & Launch",
+      "time": "Months 5–6 · 4 Nov – 18 Dec 2026 · Release by 20 Dec 2026",
+      "goal": "Harden both apps, run PM-led UAT, and release to production by the 20 December 2026 target.",
+      "milestones": [
+        {
+          "id": "3.1",
+          "name": "Integration & regression",
+          "weeks": "Weeks 17–18",
+          "exit": "No open critical or high defects from regression.",
+          "tasks": [
+            { "id": "3.1.1", "text": "Full regression of both apps on the agreed device/OS matrix", "team": "fe" },
+            { "id": "3.1.2", "text": "API contract validation against the OpenAPI specification", "team": "be" },
+            { "id": "3.1.3", "text": "Defect triage and fix cycle — frontend", "team": "fe" },
+            { "id": "3.1.4", "text": "Defect triage and fix cycle — backend", "team": "be" },
+            { "id": "3.1.5", "text": "English/Chinese localization QA", "team": "pm" },
+            { "id": "3.1.6", "text": "UI polish and accessibility pass", "team": "fe" }
+          ]
+        },
+        {
+          "id": "3.2",
+          "name": "Security & performance",
+          "weeks": "Weeks 18–19",
+          "exit": "Security and performance findings are resolved or formally accepted.",
+          "tasks": [
+            { "id": "3.2.1", "text": "Security review: authorization, ownership, uploads, rate limits", "team": "be" },
+            { "id": "3.2.2", "text": "Webhook signature, idempotency, and duplicate-callback testing", "team": "be" },
+            { "id": "3.2.3", "text": "Abuse-case testing: chat abuse, arbitrary links, injection", "team": "be" },
+            { "id": "3.2.4", "text": "Load testing: search, chat, and order APIs", "team": "infra" },
+            { "id": "3.2.5", "text": "App performance profiling: startup, lists, media", "team": "fe" }
+          ]
+        },
+        {
+          "id": "3.3",
+          "name": "User acceptance testing",
+          "weeks": "Weeks 19–21",
+          "exit": "Business signs off the UAT results.",
+          "tasks": [
+            { "id": "3.3.1", "text": "Prepare UAT scripts and acceptance criteria", "team": "pm" },
+            { "id": "3.3.2", "text": "UAT round 1: buyer, seller, and admin journeys", "team": "pm" },
+            { "id": "3.3.3", "text": "Fix UAT round 1 defects — frontend", "team": "fe" },
+            { "id": "3.3.4", "text": "Fix UAT round 1 defects — backend", "team": "be" },
+            { "id": "3.3.5", "text": "UAT round 2 and regression confirmation", "team": "pm" },
+            { "id": "3.3.6", "text": "Business sign-off on UAT results", "team": "pm" }
+          ]
+        },
+        {
+          "id": "3.4",
+          "name": "Launch preparation & release",
+          "weeks": "Weeks 21–22",
+          "exit": "Both apps are approved in the stores and released to production by 20 Dec 2026.",
+          "tasks": [
+            { "id": "3.4.1", "text": "Production infrastructure, monitoring, alerts, backup/restore", "team": "infra" },
+            { "id": "3.4.2", "text": "Escrow reconciliation check in the staging environment", "team": "be" },
+            { "id": "3.4.3", "text": "Production data seeding: vehicles, categories, initial content", "team": "be" },
+            { "id": "3.4.9", "text": "Store listing materials (Google Play & App Store) — designed and handed to frontend", "team": "design", "done": true },
+            { "id": "3.4.4", "text": "Store listings, screenshots, and privacy declarations", "team": "pm" },
+            { "id": "3.4.5", "text": "App Store and Play Store review submissions", "team": "fe" },
+            { "id": "3.4.6", "text": "Migration rehearsal and rollback plan", "team": "infra" },
+            { "id": "3.4.7", "text": "Launch checklist and go / no-go decision", "team": "pm" },
+            { "id": "3.4.8", "text": "Public release of the Seller App and Buyer App", "team": "pm" }
+          ]
+        }
+      ]
+    }
+  ]
+}
+</script>
+
+<script>
+'use strict';
+
+/* The checklist definition (phases → milestones → tasks) is canonical in
+   progress-tracker-data.json. Team colors stay here because they map to the
+   CSS custom properties above. */
+const TEAM_COLORS = {
+  design:'var(--t-design)', fe:'var(--t-fe)', be:'var(--t-be)',
+  pm:'var(--t-pm)', infra:'var(--t-infra)'
+};
+let RAW = null;        /* dataset as loaded from JSON */
+let galleryFlat = [];  /* flattened gallery images for the lightbox */
+let TEAMS = {};
+let DATA = [];         /* dataset with local task customizations applied */
+const allTasks = [];
+let BASELINE = {};     /* tasks marked "done": true in the data */
+let NUM = {};          /* task id → per-team number label (FE-01, BE-03, …) */
+let SEP = {};          /* teams flagged "separate": tracked outside the overall delivery progress */
+
+/* ---------- state ---------- */
+const STORE_KEY = 'dauto-tracker-v3';
+let state = { checked:{}, custom:{added:[], edited:{}, deleted:[]}, updatedAt:null };
+try {
+  const raw = localStorage.getItem(STORE_KEY);
+  if (raw) {
+    const s = JSON.parse(raw);
+    if (s && typeof s.checked === 'object') {
+      state = s;
+      if (!state.custom) state.custom = {added:[], edited:{}, deleted:[]};
+      state.custom.added   = state.custom.added   || [];
+      state.custom.edited  = state.custom.edited  || {};
+      state.custom.deleted = state.custom.deleted || [];
+    }
+  }
+} catch(e){ /* private mode or blocked storage — page still works, without persistence */ }
+
+function save(){
+  state.updatedAt = new Date().toISOString();
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch(e){}
+}
+
+/* Effective completion: an explicit user choice (true or false) wins; otherwise the data baseline. */
+function isDone(id){
+  return Object.prototype.hasOwnProperty.call(state.checked, id) ? !!state.checked[id] : !!BASELINE[id];
+}
+
+/* ---------- data assembly ---------- */
+function buildData(){
+  const del = new Set(state.custom.deleted);
+  TEAMS = RAW.teams || {};
+  DATA = (RAW.phases || []).map(p => ({
+    id:p.id, name:p.name, time:p.time, goal:p.goal,
+    milestones:(p.milestones || []).map(m => {
+      const tasks = (m.tasks || []).filter(t => !del.has(t.id)).map(t => {
+        const e = state.custom.edited[t.id] || {};
+        return { id:t.id, text:e.text || t.text, team:e.team || t.team, done:!!t.done };
+      });
+      state.custom.added.filter(a => a.ms === m.id && !del.has(a.id)).forEach(a => {
+        const e = state.custom.edited[a.id] || {};
+        tasks.push({ id:a.id, text:e.text || a.text, team:e.team || a.team, done:false, custom:true });
+      });
+      return { id:m.id, name:m.name, weeks:m.weeks, exit:m.exit, tasks };
+    })
+  }));
+  allTasks.length = 0; BASELINE = {}; NUM = {};
+  SEP = {};
+  Object.keys(TEAMS).forEach(k => { if (TEAMS[k].separate) SEP[k] = true; });
+  const counters = {};
+  DATA.forEach(p => p.milestones.forEach(m => m.tasks.forEach(t => {
+    allTasks.push({ id:t.id, team:t.team, phase:p.id, ms:m.id });
+    if (t.done) BASELINE[t.id] = true;
+    counters[t.team] = (counters[t.team] || 0) + 1;
+    const pref = (TEAMS[t.team] && TEAMS[t.team].prefix) || String(t.team).toUpperCase().slice(0,2);
+    NUM[t.id] = pref + '-' + String(counters[t.team]).padStart(2,'0');
+  })));
+}
+
+/* ---------- render ---------- */
+const $ = sel => document.querySelector(sel);
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+function chip(team){
+  const label = (TEAMS[team] && TEAMS[team].label) || team;
+  const color = TEAM_COLORS[team] || 'var(--muted)';
+  return '<span class="chip"><span class="dot" style="background:' + color + '"></span>' + esc(label) + '</span>';
+}
+
+function taskRow(t){
+  return '<li class="task" data-task="' + t.id + '" data-team="' + t.team + '">' +
+    '<label><input type="checkbox" data-id="' + t.id + '">' +
+    '<span class="num">' + NUM[t.id] + '</span>' +
+    '<span class="task-text">' + esc(t.text) + '</span></label>' +
+    '<span class="tools">' +
+      '<button type="button" data-act="edit" data-id="' + t.id + '" title="Edit task">Edit</button>' +
+      '<button type="button" data-act="del" data-id="' + t.id + '" title="Delete task">Delete</button>' +
+    '</span></li>';
+}
+
+function render(){
+  // sidebar
+  const delays = (RAW && Array.isArray(RAW.delays)) ? RAW.delays : [];
+  const delayCount = delays.reduce((n, d) => n + (d.items ? d.items.length : 0), 0);
+  const gallery = (RAW && Array.isArray(RAW.gallery)) ? RAW.gallery : [];
+  galleryFlat = [];
+  gallery.forEach((g, gIdx) => (g.images || []).forEach(img =>
+    galleryFlat.push({
+      src: encodeURI((g.dir || '') + img.file),
+      /* generated by generate-thumbnails.ps1 — grid falls back to the full image if missing */
+      thumb: encodeURI('gallery-thumbs/g' + gIdx + '_' + img.file.replace(/\.[^.]+$/, '') + '.jpg'),
+      caption: img.caption || img.file
+    })));
+  $('#sideNav').innerHTML =
+    '<button type="button" data-nav="overview">Overview</button>' +
+    Object.keys(TEAMS).map(k =>
+      '<button type="button" data-nav="' + k + '">' +
+      '<span class="dot" style="background:' + (TEAM_COLORS[k] || 'var(--muted)') + '"></span>' +
+      esc(TEAMS[k].label) +
+      '<span class="cnt-badge" data-scnt="' + k + '"></span></button>'
+    ).join('') +
+    (delays.length
+      ? '<button type="button" data-nav="delays">⚠ Potential delays<span class="cnt-badge">' + delayCount + '</span></button>'
+      : '') +
+    (gallery.length
+      ? '<button type="button" data-nav="gallery">Figma gallery<span class="cnt-badge">' + galleryFlat.length + '</span></button>'
+      : '');
+
+  // overview: phase tiles
+  $('#phaseTiles').innerHTML = DATA.map(p =>
+    '<div class="tile"><p class="t-name">' + esc(p.name) + '</p><p class="t-time">' + esc(p.time) + '</p>' +
+    '<div class="meter"><i data-bar="tile-' + p.id + '"></i></div>' +
+    '<p class="t-val"><span data-pct="' + p.id + '">0</span>%</p>' +
+    '<span class="t-count" data-cnt="tile-' + p.id + '"></span></div>'
+  ).join('');
+
+  // overview: team rows (click to open that team's page); separately-tracked teams get their own block
+  const teamRow = k =>
+    '<button type="button" class="team-row" data-nav="' + k + '" title="Open ' + esc(TEAMS[k].label) + ' tasks">' + chip(k) +
+    '<span class="meter"><i data-bar="team-' + k + '"></i></span>' +
+    '<span class="cnt" data-cnt="team-' + k + '"></span></button>';
+  $('#teamRows').innerHTML = Object.keys(TEAMS).filter(k => !SEP[k]).map(teamRow).join('');
+  // stat tiles: team sizes (from the data) + live delivery stats
+  $('#teamSize').innerHTML = Object.keys(TEAMS).filter(k => TEAMS[k].size).map(k =>
+    '<div class="size-tile"><div class="size-val">' + TEAMS[k].size + '</div>' +
+    '<div class="size-lbl">' + esc(TEAMS[k].label) + ' developers</div></div>'
+  ).join('') +
+  '<div class="size-tile"><div class="size-val" id="statDaysLeft">–</div><div class="size-lbl">Days to release</div></div>' +
+  '<div class="size-tile"><div class="size-val" id="statRemaining">–</div><div class="size-lbl">Tasks remaining</div></div>';
+
+  const sepTeams = Object.keys(TEAMS).filter(k => SEP[k]);
+  $('#sepStats').innerHTML = sepTeams.length
+    ? '<p class="subhead" style="margin-top:30px">Design progress · tracked separately</p>' +
+      '<div class="team-rows" style="margin-top:0">' + sepTeams.map(teamRow).join('') + '</div>' +
+      '<p class="hero-sub" style="margin-top:8px">Not counted in the overall delivery progress.</p>'
+    : '';
+
+  // overview: milestone summary
+  $('#msSummary').innerHTML = DATA.map(p =>
+    '<div class="sum-phase"><div class="phase-head"><h3>' + esc(p.name) + '</h3><span class="time">' + esc(p.time) + '</span></div>' +
+    '<div class="dash" style="padding:6px 16px">' +
+    p.milestones.map(m =>
+      '<div class="sum-row"><span class="sum-name">' + m.id + ' · ' + esc(m.name) +
+      '<span class="weeks">' + esc(m.weeks) + '</span></span>' +
+      '<span class="meter"><i data-bar="' + m.id + '"></i></span>' +
+      '<span class="cnt" data-cnt="' + m.id + '"></span></div>'
+    ).join('') + '</div></div>'
+  ).join('');
+
+  // potential-delays view
+  let delaysHtml = '';
+  if (delays.length) {
+    delaysHtml += '<section class="view" id="view-delays" data-view="delays" aria-label="Potential delays">';
+    delaysHtml += '<div class="team-head"><h2>⚠ Potential delays</h2></div>';
+    delaysHtml += '<p class="phase-goal">Same developers, different projects — time spent here delays the 20 Dec release. ' +
+                  'Review at every gate. <b>TBC</b> = timeframe not confirmed yet.</p>';
+    delays.forEach(d => {
+      delaysHtml += '<div class="delay-card"><div class="dc-head">' + chip(d.team) + '<span>' + esc(d.title) + '</span></div><ul>' +
+        (d.items || []).map(it => {
+          if (typeof it === 'string') return '<li>' + esc(it) + '</li>';
+          const when = it.when || 'TBC', effort = it.effort || 'TBC';
+          const known = when !== 'TBC' || effort !== 'TBC';
+          return '<li>' + esc(it.name) +
+            '<span class="delay-meta' + (known ? ' known' : '') + '">When: ' + esc(when) +
+            ' · Effort: ' + esc(effort) + '</span></li>';
+        }).join('') + '</ul></div>';
+    });
+    delaysHtml += '</section>';
+  }
+
+  // figma gallery view
+  let galleryHtml = '';
+  if (gallery.length) {
+    let idx = 0;
+    galleryHtml += '<section class="view" id="view-gallery" data-view="gallery" aria-label="Figma gallery">';
+    galleryHtml += '<div class="team-head"><h2>Figma gallery</h2></div>';
+    galleryHtml += '<p class="phase-goal">All approved screen designs. Click to enlarge — scroll or pinch to zoom, drag to move, double-click to toggle zoom, ←/→ to browse.</p>';
+    gallery.forEach(g => {
+      galleryHtml += '<section class="phase"><div class="phase-head"><h3>' + esc(g.title) + '</h3>' +
+                     '<span class="time">' + (g.images || []).length + ' screens</span></div><div class="gallery-grid">';
+      (g.images || []).forEach(img => {
+        galleryHtml += '<figure class="g-item" data-lb="' + idx + '">' +
+          '<div class="thumb-box"><img src="' + galleryFlat[idx].thumb + '" data-full="' + galleryFlat[idx].src + '"' +
+          ' alt="' + esc(galleryFlat[idx].caption) + '" loading="lazy"></div>' +
+          '<figcaption>' + esc(galleryFlat[idx].caption) + '</figcaption></figure>';
+        idx++;
+      });
+      galleryHtml += '</div></section>';
+    });
+    galleryHtml += '</section>';
+  }
+
+  // team views
+  $('#teamViews').innerHTML = delaysHtml + galleryHtml + Object.keys(TEAMS).map(k => {
+    let html = '<section class="view" id="view-' + k + '" data-view="' + k + '" aria-label="' + esc(TEAMS[k].label) + ' tasks">';
+    html += '<div class="team-head"><h2>' + esc(TEAMS[k].label) + ' tasks</h2>' +
+            '<span class="meter"><i data-bar="team-' + k + '"></i></span>' +
+            '<span class="cnt" data-cnt="team-' + k + '"></span>' +
+            '<span class="filters" role="toolbar" aria-label="' + esc(TEAMS[k].label) + ' task controls">' +
+            '<button type="button" data-hidedone="' + k + '" aria-pressed="' + (hideDoneByTeam[k] ? 'true' : 'false') + '">Hide completed</button>' +
+            '<button type="button" data-expand="' + k + '">Expand all</button>' +
+            '<button type="button" data-collapse="' + k + '">Collapse all</button>' +
+            '<button type="button" data-editmode aria-pressed="' + (document.body.classList.contains('editing') ? 'true' : 'false') + '">Edit tasks</button></span></div>';
+    DATA.forEach(p => {
+      const ms = p.milestones.filter(m => m.tasks.some(t => t.team === k));
+      if (!ms.length) return;
+      html += '<section class="phase"><div class="phase-head"><h3>' + esc(p.name) + '</h3><span class="time">' + esc(p.time) + '</span></div>';
+      ms.forEach(m => {
+        const ts = m.tasks.filter(t => t.team === k);
+        html += '<details class="ms" open data-ms="' + m.id + '">' +
+          '<summary><span class="caret">▶</span><span class="ms-title">' + m.id + ' · ' + esc(m.name) +
+          '<span class="weeks">' + esc(m.weeks) + '</span></span>' +
+          '<span class="ms-meter-wrap"><span class="meter"><i data-bar="tv-' + k + '-' + m.id + '"></i></span></span>' +
+          '<span class="ms-cnt" data-cnt="tv-' + k + '-' + m.id + '"></span></summary>' +
+          '<div class="ms-body"><ul class="tasks">' + ts.map(taskRow).join('') + '</ul>' +
+          '<span class="add-task"><button type="button" data-act="add" data-ms="' + m.id + '" data-team="' + k + '">+ Add task</button></span>' +
+          '<p class="exit"><b>Exit criteria:</b> ' + esc(m.exit) + '</p></div></details>';
+      });
+      html += '</section>';
+    });
+    html += '</section>';
+    return html;
+  }).join('');
+
+  // restore checked state (explicit user choices override the data baseline)
+  allTasks.forEach(t => {
+    if (isDone(t.id)) {
+      const box = document.querySelector('input[data-id="' + t.id + '"]');
+      if (box) { box.checked = true; box.closest('li.task').classList.add('done'); }
+    }
+  });
+
+  setView(currentView);
+}
+
+/* ---------- celebration toast ---------- */
+let toastTimer = null;
+function toast(msg){
+  const el = $('#toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+/* Milestone / phase / project completion messages when a task is checked. */
+function celebrate(id){
+  const t = allTasks.find(x => x.id === id);
+  if (!t) return;
+  const delivery = allTasks.filter(x => !SEP[x.team]);
+  if (delivery.length && delivery.every(x => isDone(x.id))) { toast('🚀 100% — all delivery tasks complete!'); return; }
+  const phTasks = allTasks.filter(x => x.phase === t.phase);
+  if (phTasks.every(x => isDone(x.id))) {
+    const p = DATA.find(p => p.id === t.phase);
+    toast('🎉 ' + (p ? p.name : t.phase) + ' complete!'); return;
+  }
+  const msTasks = allTasks.filter(x => x.ms === t.ms);
+  if (msTasks.every(x => isDone(x.id))) {
+    let name = t.ms;
+    DATA.forEach(p => p.milestones.forEach(m => { if (m.id === t.ms) name = m.id + ' · ' + m.name; }));
+    toast('🎉 Milestone ' + name + ' complete!');
+  }
+}
+
+/* Count a number up from 0. Re-entrant: a new call cancels the previous run. */
+function animateNumber(el){
+  if (!el) return;
+  const to = parseInt(el.textContent, 10);
+  if (isNaN(to) || to <= 0) return;
+  const token = (el._anim = (el._anim || 0) + 1);
+  const t0 = performance.now(), dur = 900;
+  (function frame(now){
+    if (el._anim !== token) return;
+    const p = Math.min(1, (now - t0) / dur);
+    el.textContent = Math.round(to * (1 - Math.pow(1 - p, 3)));
+    if (p < 1) requestAnimationFrame(frame);
+  })(t0);
+}
+
+/* Replay the headline number count-ups and the hero bar sweep. */
+function playOverviewAnimations(){
+  updateStats(); /* make sure the true final values are in the DOM first */
+  const bar = $('#heroBar');
+  if (bar) {
+    const w = bar.style.width;
+    bar.style.transition = 'none'; bar.style.width = '0%';
+    void bar.offsetWidth;
+    bar.style.transition = ''; bar.style.width = w;
+  }
+  animateNumber($('#heroPct'));
+  animateNumber($('#statDaysLeft'));
+  animateNumber($('#statRemaining'));
+}
+
+/* ---------- stats ---------- */
+function setBar(key, done, total){
+  const pct = total ? Math.round(done / total * 100) : 0;
+  document.querySelectorAll('[data-bar="' + key + '"]').forEach(el => el.style.width = pct + '%');
+  document.querySelectorAll('[data-cnt="' + key + '"]').forEach(el => el.textContent = done + ' / ' + total);
+  return pct;
+}
+
+function updateStats(){
+  const done = id => isDone(id);
+  /* Overall delivery progress counts only delivery teams; separately-tracked teams (design) are excluded. */
+  const delivery = allTasks.filter(t => !SEP[t.team]);
+  const total = delivery.length;
+  const doneCount = delivery.filter(t => done(t.id)).length;
+  const pctAll = total ? Math.round(doneCount / total * 100) : 0;
+
+  $('#heroPct').textContent = pctAll;
+  $('#heroBar').style.width = pctAll + '%';
+  $('#heroDone').textContent = doneCount;
+  $('#heroTotal').textContent = total;
+  $('#heroLeft').textContent = total - doneCount;
+  const remainEl = $('#statRemaining');
+  if (remainEl) remainEl.textContent = total - doneCount;
+  $('#lastUpdate').textContent = state.updatedAt
+    ? 'Last update: ' + new Date(state.updatedAt).toLocaleString()
+    : '';
+
+  if (RAW && RAW.target && RAW.target.date) {
+    const days = Math.ceil((new Date(RAW.target.date + 'T00:00:00') - Date.now()) / 86400000);
+    $('#targetLine').textContent = 'Target release: ' + RAW.target.label +
+      (days >= 0 ? ' · ' + days + ' days left' : ' · ' + Math.abs(days) + ' days past target');
+    const daysEl = $('#statDaysLeft');
+    if (daysEl) daysEl.textContent = days;
+  }
+
+  DATA.forEach(p => {
+    const ts = allTasks.filter(t => t.phase === p.id && !SEP[t.team]);
+    const d = ts.filter(t => done(t.id)).length;
+    const pct = setBar('tile-' + p.id, d, ts.length);
+    document.querySelectorAll('[data-pct="' + p.id + '"]').forEach(el => el.textContent = pct);
+    p.milestones.forEach(m => {
+      const ms = allTasks.filter(t => t.ms === m.id);
+      setBar(m.id, ms.filter(t => done(t.id)).length, ms.length);
+      Object.keys(TEAMS).forEach(k => {
+        const sub = ms.filter(t => t.team === k);
+        if (sub.length) setBar('tv-' + k + '-' + m.id, sub.filter(t => done(t.id)).length, sub.length);
+      });
+    });
+  });
+
+  Object.keys(TEAMS).forEach(k => {
+    const ts = allTasks.filter(t => t.team === k);
+    const d = ts.filter(t => done(t.id)).length;
+    setBar('team-' + k, d, ts.length);
+    document.querySelectorAll('[data-scnt="' + k + '"]').forEach(el => el.textContent = d + '/' + ts.length);
+  });
+
+}
+
+/* ---------- views ---------- */
+let currentView = 'overview';
+try { currentView = localStorage.getItem('dauto-tracker-view') || 'overview'; } catch(e){}
+
+function setView(v){
+  const hasDelays = RAW && Array.isArray(RAW.delays) && RAW.delays.length;
+  const hasGallery = RAW && Array.isArray(RAW.gallery) && RAW.gallery.length;
+  if (v !== 'overview' && !(v === 'delays' && hasDelays) && !(v === 'gallery' && hasGallery) && !TEAMS[v]) v = 'overview';
+  currentView = v;
+  try { localStorage.setItem('dauto-tracker-view', v); } catch(e){}
+  document.querySelectorAll('.view').forEach(sec => sec.classList.toggle('active', sec.dataset.view === v));
+  document.querySelectorAll('#sideNav button').forEach(b =>
+    b.setAttribute('aria-current', b.dataset.nav === v ? 'true' : 'false'));
+  if (v === 'overview' && allTasks.length) playOverviewAnimations();
+}
+
+/* ---------- filtering (per team) ---------- */
+const hideDoneByTeam = {};
+function applyFilter(){
+  Object.keys(TEAMS).forEach(k => {
+    const view = document.getElementById('view-' + k);
+    if (!view) return;
+    const hide = !!hideDoneByTeam[k];
+    view.querySelectorAll('li.task').forEach(li =>
+      li.classList.toggle('hidden', hide && li.classList.contains('done')));
+    view.querySelectorAll('details.ms').forEach(ms => {
+      const visible = ms.querySelectorAll('li.task:not(.hidden)').length > 0;
+      ms.classList.toggle('hidden', !visible);
+    });
+    view.querySelectorAll('section.phase').forEach(ph => {
+      const visible = ph.querySelectorAll('details.ms:not(.hidden)').length > 0;
+      ph.classList.toggle('hidden', !visible);
+    });
+  });
+}
+
+/* ---------- task editing ---------- */
+const dlg = $('#taskDialog');
+let dlgCtx = null;
+
+function openDialog(ctx){
+  dlgCtx = ctx;
+  const teamLabel = (TEAMS[ctx.team] && TEAMS[ctx.team].label) || ctx.team;
+  $('#dlgTitle').textContent = (ctx.mode === 'add' ? 'Add task' : 'Edit task') + ' · ' + teamLabel;
+  $('#dlgText').value = ctx.text || '';
+  dlg.showModal();
+  $('#dlgText').focus();
+}
+
+dlg.addEventListener('close', () => {
+  if (dlg.returnValue !== 'ok' || !dlgCtx) { dlgCtx = null; return; }
+  const text = $('#dlgText').value.trim();
+  const team = dlgCtx.team; /* implied by the team page the dialog was opened from */
+  if (text) {
+    if (dlgCtx.mode === 'add') {
+      const id = 'x' + Date.now().toString(36) + Math.floor(Math.random()*1e3).toString(36);
+      state.custom.added.push({ id, ms: dlgCtx.ms, text, team });
+    } else {
+      state.custom.edited[dlgCtx.id] = { text, team };
+    }
+    save(); rebuild();
+  }
+  dlgCtx = null;
+});
+
+function deleteTask(id){
+  if (!confirm('Delete this task? It disappears for this browser and for anyone who imports your exported progress.')) return;
+  const addedIdx = state.custom.added.findIndex(a => a.id === id);
+  if (addedIdx >= 0) state.custom.added.splice(addedIdx, 1);
+  else if (!state.custom.deleted.includes(id)) state.custom.deleted.push(id);
+  delete state.custom.edited[id];
+  delete state.checked[id];
+  save(); rebuild();
+}
+
+function rebuild(){
+  buildData(); render(); updateStats(); applyFilter();
+}
+
+/* ---------- events ---------- */
+document.addEventListener('change', e => {
+  const box = e.target.closest('input[data-id]');
+  if (!box) return;
+  const id = box.dataset.id;
+  state.checked[id] = box.checked;
+  const li = box.closest('li.task');
+  li.classList.toggle('done', box.checked);
+  if (box.checked) {
+    li.classList.remove('flash'); void li.offsetWidth; /* restart the flash animation */
+    li.classList.add('flash');
+    li.addEventListener('animationend', () => li.classList.remove('flash'), { once:true });
+  }
+  save(); updateStats(); applyFilter();
+  if (box.checked) celebrate(id);
+});
+
+document.addEventListener('click', e => {
+  const nav = e.target.closest('button[data-nav]');
+  if (nav) { setView(nav.dataset.nav); return; }
+  const em = e.target.closest('button[data-editmode]');
+  if (em) {
+    const on = !document.body.classList.contains('editing');
+    document.body.classList.toggle('editing', on);
+    document.querySelectorAll('button[data-editmode]').forEach(b => b.setAttribute('aria-pressed', String(on)));
+    return;
+  }
+  const hd = e.target.closest('button[data-hidedone]');
+  if (hd) {
+    const k = hd.dataset.hidedone;
+    hideDoneByTeam[k] = !hideDoneByTeam[k];
+    hd.setAttribute('aria-pressed', String(hideDoneByTeam[k]));
+    applyFilter();
+    return;
+  }
+  const ex = e.target.closest('button[data-expand]');
+  if (ex) { document.querySelectorAll('#view-' + ex.dataset.expand + ' details.ms').forEach(d => d.open = true); return; }
+  const co = e.target.closest('button[data-collapse]');
+  if (co) { document.querySelectorAll('#view-' + co.dataset.collapse + ' details.ms').forEach(d => d.open = false); return; }
+  const gi = e.target.closest('.g-item[data-lb]');
+  if (gi) { openLightbox(parseInt(gi.dataset.lb, 10)); return; }
+  const act = e.target.closest('button[data-act]');
+  if (!act) return;
+  if (act.dataset.act === 'add') openDialog({ mode:'add', ms: act.dataset.ms, team: act.dataset.team });
+  else if (act.dataset.act === 'edit') {
+    const id = act.dataset.id;
+    let found = null;
+    DATA.forEach(p => p.milestones.forEach(m => m.tasks.forEach(t => { if (t.id === id) found = t; })));
+    if (found) openDialog({ mode:'edit', id, text: found.text, team: found.team });
+  }
+  else if (act.dataset.act === 'del') deleteTask(act.dataset.id);
+});
+
+window.addEventListener('beforeprint', () => document.querySelectorAll('details.ms').forEach(d => d.open = true));
+
+/* Replay the overview animation when the page is restored from the back/forward cache. */
+window.addEventListener('pageshow', e => {
+  if (e.persisted && currentView === 'overview' && allTasks.length) playOverviewAnimations();
+});
+
+/* ---------- gallery thumbnail loader ---------- */
+/* Fade thumbnails in when loaded; if a generated thumbnail is missing,
+   fall back to the full-size original once. */
+document.addEventListener('load', e => {
+  const im = e.target;
+  if (im.tagName === 'IMG' && im.closest('.g-item')) im.closest('.g-item').classList.add('g-done');
+}, true);
+document.addEventListener('error', e => {
+  const im = e.target;
+  if (im.tagName === 'IMG' && im.closest('.g-item') && im.dataset.full && !im.dataset.fbk) {
+    im.dataset.fbk = '1';
+    im.src = im.dataset.full;
+  }
+}, true);
+
+/* ---------- figma lightbox (with pan & zoom) ---------- */
+let lbIndex = -1;
+const lb = $('#lightbox');
+const lbImg = $('#lbImg');
+let lbScale = 1, lbTx = 0, lbTy = 0;
+
+function lbApply(){
+  lbImg.style.transform = 'translate(' + lbTx + 'px,' + lbTy + 'px) scale(' + lbScale + ')';
+}
+function lbResetZoom(){ lbScale = 1; lbTx = 0; lbTy = 0; lbApply(); }
+
+/* Zoom by factor k, keeping the screen point (px,py) fixed.
+   Max zoom is dynamic: up to 2x the image's native pixel density, so wide
+   boards (fitted very small) can still be inspected at full detail. */
+function lbZoomAt(px, py, k){
+  const fitW = lbImg.getBoundingClientRect().width / lbScale;
+  const maxScale = (lbImg.naturalWidth && fitW)
+    ? Math.max(6, (lbImg.naturalWidth / fitW) * 2)
+    : 6;
+  const ns = Math.min(maxScale, Math.max(1, lbScale * k));
+  k = ns / lbScale;
+  if (k === 1) { if (ns === 1) { lbTx = 0; lbTy = 0; lbApply(); } return; }
+  const r = lbImg.getBoundingClientRect();
+  const cx = (r.left + r.right) / 2, cy = (r.top + r.bottom) / 2;
+  lbTx += (px - cx) * (1 - k);
+  lbTy += (py - cy) * (1 - k);
+  lbScale = ns;
+  if (lbScale === 1) { lbTx = 0; lbTy = 0; }
+  lbApply();
+}
+
+function openLightbox(i){
+  if (!galleryFlat.length) return;
+  lbIndex = (i + galleryFlat.length) % galleryFlat.length;
+  lbImg.src = galleryFlat[lbIndex].src;
+  lbImg.alt = galleryFlat[lbIndex].caption;
+  $('#lbCap').textContent = galleryFlat[lbIndex].caption + ' · ' + (lbIndex + 1) + ' / ' + galleryFlat.length;
+  lbResetZoom();
+  lb.hidden = false;
+}
+function closeLightbox(){ lb.hidden = true; lbImg.src = ''; lbResetZoom(); }
+
+lb.addEventListener('click', e => {
+  const z = e.target.closest('button[data-z]');
+  if (z) {
+    const r = lbImg.getBoundingClientRect();
+    const cx = (r.left + r.right) / 2, cy = (r.top + r.bottom) / 2;
+    if (z.dataset.z === 'in') lbZoomAt(cx, cy, 1.4);
+    else if (z.dataset.z === 'out') lbZoomAt(cx, cy, 1 / 1.4);
+    else lbResetZoom();
+    return;
+  }
+  if (e.target.closest('.lb-prev')) { openLightbox(lbIndex - 1); return; }
+  if (e.target.closest('.lb-next')) { openLightbox(lbIndex + 1); return; }
+  if (e.target.closest('.lb-close') || !e.target.closest('figure')) closeLightbox();
+});
+
+/* Mouse-wheel / trackpad zoom toward the cursor */
+lb.addEventListener('wheel', e => {
+  if (lb.hidden) return;
+  e.preventDefault();
+  lbZoomAt(e.clientX, e.clientY, e.deltaY < 0 ? 1.2 : 1 / 1.2);
+}, { passive:false });
+
+/* Double-click toggles zoom at the clicked point */
+lbImg.addEventListener('dblclick', e => {
+  e.preventDefault();
+  lbZoomAt(e.clientX, e.clientY, lbScale > 1 ? 1 / lbScale : 2.5);
+});
+
+/* Drag to pan (one pointer) and pinch to zoom (two pointers) */
+const lbPtrs = new Map();
+let lbMoved = false;
+lbImg.addEventListener('pointerdown', e => {
+  e.preventDefault();
+  try { lbImg.setPointerCapture(e.pointerId); } catch(err){}
+  lbPtrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  lbImg.classList.add('dragging');
+  lbMoved = false;
+});
+lbImg.addEventListener('pointermove', e => {
+  const prev = lbPtrs.get(e.pointerId);
+  if (!prev) return;
+  if (lbPtrs.size === 1) {
+    lbTx += e.clientX - prev.x;
+    lbTy += e.clientY - prev.y;
+    if (Math.abs(e.clientX - prev.x) + Math.abs(e.clientY - prev.y) > 1) lbMoved = true;
+    lbApply();
+  } else if (lbPtrs.size === 2) {
+    const pts = Array.from(lbPtrs.entries());
+    const other = pts.find(p => p[0] !== e.pointerId)[1];
+    const dOld = Math.hypot(prev.x - other.x, prev.y - other.y);
+    const dNew = Math.hypot(e.clientX - other.x, e.clientY - other.y);
+    if (dOld > 0) lbZoomAt((e.clientX + other.x) / 2, (e.clientY + other.y) / 2, dNew / dOld);
+    lbMoved = true;
+  }
+  lbPtrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+});
+function lbPtrEnd(e){
+  lbPtrs.delete(e.pointerId);
+  if (!lbPtrs.size) lbImg.classList.remove('dragging');
+}
+lbImg.addEventListener('pointerup', lbPtrEnd);
+lbImg.addEventListener('pointercancel', lbPtrEnd);
+
+document.addEventListener('keydown', e => {
+  if (lb.hidden) return;
+  if (e.key === 'Escape') closeLightbox();
+  else if (e.key === 'ArrowLeft') openLightbox(lbIndex - 1);
+  else if (e.key === 'ArrowRight') openLightbox(lbIndex + 1);
+  else if (e.key === '+' || e.key === '=') lbZoomAt(innerWidth / 2, innerHeight / 2, 1.4);
+  else if (e.key === '-') lbZoomAt(innerWidth / 2, innerHeight / 2, 1 / 1.4);
+  else if (e.key === '0') lbResetZoom();
+});
+
+function download(name, text){
+  const blob = new Blob([text], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  a.click(); URL.revokeObjectURL(a.href);
+}
+
+$('#btnExport').addEventListener('click', () => {
+  download('d-auto-club-progress-' + new Date().toISOString().slice(0,10) + '.json',
+    JSON.stringify({app:'d-auto-club-tracker', version:3,
+      exportedAt:new Date().toISOString(),
+      checked: allTasks.filter(t => isDone(t.id)).map(t => t.id),
+      custom: state.custom}, null, 2));
+});
+
+$('#btnData').addEventListener('click', () => {
+  /* Canonical dataset with local customizations applied and current completion baked in as the new baseline. */
+  const out = {
+    project: RAW.project || 'D-Auto Club',
+    version: RAW.version || 1,
+    target: RAW.target,
+    teams: RAW.teams,
+    delays: RAW.delays,
+    gallery: RAW.gallery,
+    phases: DATA.map(p => ({
+      id:p.id, name:p.name, time:p.time, goal:p.goal,
+      milestones: p.milestones.map(m => ({
+        id:m.id, name:m.name, weeks:m.weeks, exit:m.exit,
+        tasks: m.tasks.map(t => {
+          const o = { id:t.id, text:t.text, team:t.team };
+          if (isDone(t.id)) o.done = true;
+          return o;
+        })
+      }))
+    }))
+  };
+  download('progress-tracker-data.json', JSON.stringify(out, null, 2));
+});
+
+$('#btnImport').addEventListener('click', () => $('#fileImport').click());
+$('#fileImport').addEventListener('change', e => {
+  const file = e.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const data = JSON.parse(reader.result);
+      if (!data || !Array.isArray(data.checked)) throw new Error('bad format');
+      if (data.custom && typeof data.custom === 'object') {
+        state.custom = {
+          added:   Array.isArray(data.custom.added)   ? data.custom.added   : [],
+          edited:  (data.custom.edited && typeof data.custom.edited === 'object') ? data.custom.edited : {},
+          deleted: Array.isArray(data.custom.deleted) ? data.custom.deleted : []
+        };
+      }
+      buildData();
+      const imported = new Set(data.checked);
+      state.checked = {};
+      allTasks.forEach(t => { state.checked[t.id] = imported.has(t.id); });
+      save(); rebuild();
+    } catch(err){ alert('Could not import this file. Please choose a progress file exported from this page.'); }
+    e.target.value = '';
+  };
+  reader.readAsText(file);
+});
+
+$('#btnReset').addEventListener('click', () => {
+  if (!confirm('Reset check-marks on this browser back to the project baseline? Task additions and edits are kept; design and demo-app work stays checked.')) return;
+  state.checked = {}; save();
+  document.querySelectorAll('input[data-id]').forEach(box => {
+    const on = isDone(box.dataset.id);
+    box.checked = on; box.closest('li.task').classList.toggle('done', on);
+  });
+  updateStats(); applyFilter();
+});
+
+$('#btnTheme').addEventListener('click', () => {
+  const root = document.documentElement;
+  const current = root.dataset.theme ||
+    (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  root.dataset.theme = current === 'dark' ? 'light' : 'dark';
+  try { localStorage.setItem('dauto-tracker-theme', root.dataset.theme); } catch(e){}
+});
+try {
+  const savedTheme = localStorage.getItem('dauto-tracker-theme');
+  if (savedTheme) document.documentElement.dataset.theme = savedTheme;
+} catch(e){}
+
+/* ---------- boot: load data from JSON file, fall back to embedded copy ---------- */
+async function boot(){
+  let raw = null;
+  try {
+    const res = await fetch('progress-tracker-data.json', {cache:'no-store'});
+    if (res.ok) raw = await res.json();
+  } catch(e){ /* file:// — fetch blocked; use the embedded copy */ }
+  if (!raw) {
+    try { raw = JSON.parse(document.getElementById('tracker-data').textContent); }
+    catch(e){ raw = {teams:{}, phases:[]}; }
+  }
+  RAW = raw;
+  rebuild();
+}
+boot();
+</script>
+</body>
+</html>

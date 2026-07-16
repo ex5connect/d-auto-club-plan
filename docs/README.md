@@ -13,6 +13,10 @@ This is the main documentation hub for the D-Auto Club project. Project-wide doc
 | [`timeframe.md`](timeframe.md) | Six-month schedule, delivery gates, staffing assumptions, and schedule controls | Dates, scope, staffing, dependencies, or milestone forecasts change |
 | [`presentation/index.html`](presentation/index.html) | Meeting slide deck covering scope, architecture, estimates, risks, and decisions | Presentation scope or project assumptions change |
 | [`presentation/delivery-timeframe.html`](presentation/delivery-timeframe.html) | Detailed milestone, sprint, ownership, QA, and delivery timetable | Dates, tasks, staffing, or release gates change |
+| [`progress-tracker.html`](progress-tracker.html) | Interactive milestone/task checklist with live progress statistics for the agreed 2+2+2 month delivery (Seller App → Buyer App → UAT) | A task is completed, or milestones/tasks are added or rescoped |
+| [`progress-tracker-data.json`](progress-tracker-data.json) | Canonical checklist definition (phases, milestones, tasks, teams) used by the progress tracker; the tracker embeds an identical copy for offline double-click use | Milestones or tasks are added, removed, or rescoped (run `sync-tracker.bat` after changing it) |
+| [`sync-tracker.bat`](sync-tracker.bat) / [`sync-tracker.ps1`](sync-tracker.ps1) | One-click sync: after "Download data" in the tracker, copies the downloaded JSON over `progress-tracker-data.json` and re-injects the tracker's embedded copy | Never edited by hand; run it after each Download data |
+| [`generate-thumbnails.bat`](generate-thumbnails.bat) / [`generate-thumbnails.ps1`](generate-thumbnails.ps1) | Renders small JPEG previews of every gallery image into `gallery-thumbs/`; the tracker's Figma gallery grid loads these instead of the full-size boards | Images are added to the gallery section of the data file (use `-Force` to rebuild all) |
 
 ## Original References
 

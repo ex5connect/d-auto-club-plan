@@ -1,0 +1,380 @@
+{
+  "project": "D-Auto Club",
+  "version": 4,
+  "target": { "label": "20 Dec 2026", "date": "2026-12-20" },
+  "teams": {
+    "design": { "label": "Design", "prefix": "DS", "separate": true },
+    "fe": { "label": "Frontend", "prefix": "FE", "size": 3 },
+    "be": { "label": "Backend", "prefix": "BE", "size": 3 },
+    "pm": { "label": "PM", "prefix": "PM" },
+    "infra": { "label": "Infra", "prefix": "IF" }
+  },
+  "delays": [
+    {
+      "team": "fe",
+      "title": "Frontend team must handle other projects",
+      "items": [
+        { "name": "Booking notification", "when": "TBC", "effort": "TBC" },
+        { "name": "Video streaming", "when": "TBC", "effort": "TBC" },
+        { "name": "Telegram game", "when": "TBC", "effort": "TBC" },
+        { "name": "V5 frontend new feature", "when": "TBC", "effort": "TBC" }
+      ]
+    },
+    {
+      "team": "be",
+      "title": "Backend team must handle other projects",
+      "items": [
+        { "name": "IG V5 backend take-over from outsource", "when": "TBC", "effort": "TBC" },
+        { "name": "IG V5 backend new feature", "when": "TBC", "effort": "TBC" },
+        { "name": "AI chat bot", "when": "TBC", "effort": "TBC" },
+        { "name": "Telegram spam prevention bot", "when": "TBC", "effort": "TBC" }
+      ]
+    }
+  ],
+  "gallery": [
+    {
+      "title": "Seller App — Figma designs",
+      "dir": "../workflow/tasks/20260716T1615_understand-figma/supporting-materials/Seller App/",
+      "images": [
+        { "file": "Splashscreen + Login Page.png", "caption": "Splash Screen + Login Page" },
+        { "file": "Seller-Profile.png", "caption": "Seller Profile" },
+        { "file": "Car-Profile.png", "caption": "Car Profile" },
+        { "file": "Spare-Part-Profile.png", "caption": "Spare-Part Profile" },
+        { "file": "Car-Accessories-Profile.png", "caption": "Car Accessories Profile" },
+        { "file": "Car-Plate.png", "caption": "Car Plate" },
+        { "file": "Car Switch-Sell.png", "caption": "Car Switch-Sell" },
+        { "file": "Location.png", "caption": "Location" },
+        { "file": "Option-Address.png", "caption": "Option-Address" },
+        { "file": "Selection.png", "caption": "Selection" },
+        { "file": "Order Section Seller.png", "caption": "Order Section (Seller)" },
+        { "file": "Order Detail Content (CarAcc).png", "caption": "Order Detail Content" },
+        { "file": "Seller-Chat-Status.png", "caption": "Seller Chat Status" }
+      ]
+    },
+    {
+      "title": "User App — Figma designs",
+      "dir": "../workflow/tasks/20260716T1615_understand-figma/supporting-materials/User App/",
+      "images": [
+        { "file": "splash screen + login page.png", "caption": "Splash Screen + Login Page" },
+        { "file": "landing page to car model list page flow.png", "caption": "Landing Page → Car Model List flow" },
+        { "file": "car model list overlay.png", "caption": "Car Model List Overlay" },
+        { "file": "Category list - en.png", "caption": "Category List (English)" },
+        { "file": "Category list - zh.png", "caption": "Category List (Chinese)" },
+        { "file": "spare parts.png", "caption": "Spare Parts" },
+        { "file": "accessories section.png", "caption": "Accessories Section" },
+        { "file": "second hand car page.png", "caption": "Second Hand Car Page" },
+        { "file": "car plate.png", "caption": "Car Plate" },
+        { "file": "workshop.png", "caption": "Workshop" },
+        { "file": "Charge-EV.png", "caption": "Charge-EV" },
+        { "file": "chat.png", "caption": "Chat" },
+        { "file": "community group.png", "caption": "Community Group" },
+        { "file": "review & report.png", "caption": "Review & Report" },
+        { "file": "user profile.png", "caption": "User Profile" },
+        { "file": "Component.png", "caption": "Component Library" }
+      ]
+    }
+  ],
+  "phases": [
+    {
+      "id": "p1",
+      "name": "Phase 1 · Seller App",
+      "time": "Months 1–2 · 15 Jul – 8 Sep 2026",
+      "goal": "Deliver a working Seller App internal beta together with the backend foundation both apps will share.",
+      "milestones": [
+        {
+          "id": "1.0",
+          "name": "Kickoff & key decisions",
+          "weeks": "Week 1",
+          "exit": "All blocking decisions have owners and recorded answers; the scope baseline is approved.",
+          "tasks": [
+            { "id": "1.0.1", "text": "Lock the MVP scope and the deferral order for both apps", "team": "pm" },
+            { "id": "1.0.2", "text": "Select the escrow provider; confirm payment-link, webhook, refund, and dispute capabilities", "team": "pm" },
+            { "id": "1.0.3", "text": "Confirm seller types, verification documents, and onboarding rules", "team": "pm" },
+            { "id": "1.0.4", "text": "Confirm the vehicle/compatibility data source and data ownership", "team": "pm" },
+            { "id": "1.0.5", "text": "Confirm English and Chinese as launch languages", "team": "pm", "done": true },
+            { "id": "1.0.6", "text": "Confirm minimum Android/iOS versions and the list of test devices", "team": "pm" },
+            { "id": "1.0.7", "text": "Approve the minimal admin dashboard scope", "team": "pm" },
+            { "id": "1.0.8", "text": "Set up task tracking and the weekly progress-reporting cadence", "team": "pm" }
+          ]
+        },
+        {
+          "id": "1.1",
+          "name": "Seller App UI design — completed",
+          "weeks": "Completed · Jul 2026",
+          "exit": "All Seller App screens are designed and exported. New design tasks are added here if scope changes.",
+          "tasks": [
+            { "id": "1.1.1", "text": "Splash Screen + Login Page — UI design", "team": "design", "done": true },
+            { "id": "1.1.2", "text": "Seller Profile — UI design", "team": "design", "done": true },
+            { "id": "1.1.3", "text": "Car Profile — UI design", "team": "design", "done": true },
+            { "id": "1.1.4", "text": "Spare-Part Profile — UI design", "team": "design", "done": true },
+            { "id": "1.1.5", "text": "Car Accessories Profile — UI design", "team": "design", "done": true },
+            { "id": "1.1.6", "text": "Car Plate — UI design", "team": "design", "done": true },
+            { "id": "1.1.7", "text": "Car Switch-Sell — UI design", "team": "design", "done": true },
+            { "id": "1.1.8", "text": "Location — UI design", "team": "design", "done": true },
+            { "id": "1.1.9", "text": "Option-Address — UI design", "team": "design", "done": true },
+            { "id": "1.1.10", "text": "Selection — UI design", "team": "design", "done": true },
+            { "id": "1.1.11", "text": "Order Section (Seller) — UI design", "team": "design", "done": true },
+            { "id": "1.1.12", "text": "Order Detail Content — UI design", "team": "design", "done": true },
+            { "id": "1.1.13", "text": "Seller Chat Status — UI design", "team": "design", "done": true }
+          ]
+        },
+        {
+          "id": "1.2",
+          "name": "Platform & backend foundation",
+          "weeks": "Weeks 1–4",
+          "exit": "Authenticated users and approved sellers exist through documented APIs on staging; app builds are distributed automatically.",
+          "tasks": [
+            { "id": "1.2.1", "text": "Initialize the Laravel project: environments, CI, queues, cache, storage", "team": "be", "done": true },
+            { "id": "1.2.2", "text": "Define API standards: versioning, validation, errors, pagination, OpenAPI docs", "team": "be" },
+            { "id": "1.2.3", "text": "Implement social login (Apple, Google, Facebook, WeChat) and the token lifecycle", "team": "be" },
+            { "id": "1.2.4", "text": "Implement users, profiles, devices, roles, and permissions", "team": "be" },
+            { "id": "1.2.5", "text": "Implement seller onboarding: seller types, verification documents, status workflow", "team": "be" },
+            { "id": "1.2.6", "text": "Implement address and region master data (Malaysia / China)", "team": "be" },
+            { "id": "1.2.7", "text": "Implement the vehicle taxonomy (brand, series, variant, year) and its import pipeline", "team": "be" },
+            { "id": "1.2.8", "text": "Implement media upload with storage, type, and size validation", "team": "be" },
+            { "id": "1.2.9", "text": "Set up the staging environment and monitoring", "team": "infra" },
+            { "id": "1.2.10", "text": "Set up iOS/Android build pipelines and internal distribution", "team": "infra" },
+            { "id": "1.2.11", "text": "React Native Expo workspace setup", "team": "fe", "done": true },
+            { "id": "1.2.12", "text": "Google Play and App Store account setup", "team": "fe", "done": true }
+          ]
+        },
+        {
+          "id": "1.3",
+          "name": "Seller App modules",
+          "weeks": "Weeks 2–8",
+          "exit": "Every Seller App module works against the staging APIs.",
+          "tasks": [
+            { "id": "1.3.1", "text": "App layout and navigation structure", "team": "fe", "done": true },
+            { "id": "1.3.2", "text": "Splash Screen + Login Page — seller login and registration", "team": "fe", "done": true },
+            { "id": "1.3.3", "text": "Seller Profile — view and edit profile", "team": "fe", "done": true },
+            { "id": "1.3.4", "text": "Business account setup — seller type and store setup", "team": "fe", "done": true },
+            { "id": "1.3.5", "text": "Selection — category, attribute, and vehicle compatibility pickers", "team": "fe" },
+            { "id": "1.3.6", "text": "Spare-Part Profile — spare part product create/edit", "team": "fe" },
+            { "id": "1.3.7", "text": "Car Accessories Profile — accessories product create/edit", "team": "fe" },
+            { "id": "1.3.8", "text": "Car Profile — used-car listing create/edit", "team": "fe" },
+            { "id": "1.3.9", "text": "Car Switch-Sell — switch car to sell flow", "team": "fe" },
+            { "id": "1.3.10", "text": "Car Plate — car plate listing create/edit", "team": "fe" },
+            { "id": "1.3.11", "text": "Location — map and region location picker (Malaysia / China)", "team": "fe" },
+            { "id": "1.3.12", "text": "Option-Address — address management", "team": "fe" },
+            { "id": "1.3.13", "text": "Product listing management — stock, price, publish/unpublish", "team": "fe" },
+            { "id": "1.3.14", "text": "Order Section (Seller) — order queues: unpaid, to ship, shipped, completed, cancelled, refunded", "team": "fe" },
+            { "id": "1.3.15", "text": "Order Detail Content — order detail with items, buyer info, and actions", "team": "fe" },
+            { "id": "1.3.16", "text": "Shipment — courier and tracking-number submission", "team": "fe" },
+            { "id": "1.3.17", "text": "Seller Chat — conversations, messages, product/order cards", "team": "fe" },
+            { "id": "1.3.18", "text": "Seller Chat — escrow payment-link sending and status display", "team": "fe" },
+            { "id": "1.3.19", "text": "Seller notifications and settings", "team": "fe" },
+            { "id": "1.3.20", "text": "Loading, empty, error, and offline states across all seller modules", "team": "fe" }
+          ]
+        },
+        {
+          "id": "1.4",
+          "name": "Seller platform APIs",
+          "weeks": "Weeks 3–8",
+          "exit": "All seller flows are supported by documented, policy-protected APIs.",
+          "tasks": [
+            { "id": "1.4.1", "text": "Product/SKU models: categories, attributes, media, price, stock, publication", "team": "be" },
+            { "id": "1.4.2", "text": "Product CRUD APIs with ownership and moderation status", "team": "be" },
+            { "id": "1.4.3", "text": "Product-to-vehicle compatibility mapping APIs", "team": "be" },
+            { "id": "1.4.4", "text": "Used-car and car-plate listing APIs", "team": "be" },
+            { "id": "1.4.5", "text": "Chat: conversations, messages, read state, media, realtime delivery", "team": "be" },
+            { "id": "1.4.6", "text": "Product/order chat cards and push events", "team": "be" },
+            { "id": "1.4.7", "text": "Escrow payment-link validation (allowlist) and status tracking", "team": "be" },
+            { "id": "1.4.8", "text": "Order model and state machine: unpaid → shipped → completed / cancelled / refunded", "team": "be" },
+            { "id": "1.4.9", "text": "Seller order-management and tracking-submission APIs", "team": "be" },
+            { "id": "1.4.10", "text": "Seller notification APIs", "team": "be" },
+            { "id": "1.4.11", "text": "Seed data and API documentation for frontend integration", "team": "be" }
+          ]
+        },
+        {
+          "id": "1.5",
+          "name": "Gate 1 — Seller App internal beta",
+          "weeks": "Weeks 7–8",
+          "exit": "Management signs off the end-to-end seller journey on the internal beta.",
+          "tasks": [
+            { "id": "1.5.1", "text": "Frontend–backend integration testing of all seller flows", "team": "fe" },
+            { "id": "1.5.2", "text": "Fix integration defects found in seller-flow testing", "team": "be" },
+            { "id": "1.5.3", "text": "Distribute the Seller App internal beta (TestFlight / internal track)", "team": "infra" },
+            { "id": "1.5.4", "text": "End-to-end demo: onboard seller → publish product → order → escrow link → ship", "team": "pm" },
+            { "id": "1.5.5", "text": "Management review and Phase 1 sign-off", "team": "pm" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "p2",
+      "name": "Phase 2 · Buyer App",
+      "time": "Months 3–4 · 9 Sep – 3 Nov 2026",
+      "goal": "Deliver a working Buyer App internal beta that completes the full buyer-to-seller marketplace journey, plus the minimal admin dashboard.",
+      "milestones": [
+        {
+          "id": "2.1",
+          "name": "Buyer App UI design — completed",
+          "weeks": "Completed · Jul 2026",
+          "exit": "All Buyer App screens are designed and exported. New design tasks are added here if scope changes.",
+          "tasks": [
+            { "id": "2.1.1", "text": "Splash Screen + Login Page — UI design", "team": "design", "done": true },
+            { "id": "2.1.2", "text": "Landing Page → Car Model List flow — UI design", "team": "design", "done": true },
+            { "id": "2.1.3", "text": "Car Model List Overlay — UI design", "team": "design", "done": true },
+            { "id": "2.1.4", "text": "Category List (English & Chinese) — UI design", "team": "design", "done": true },
+            { "id": "2.1.5", "text": "Spare Parts — UI design", "team": "design", "done": true },
+            { "id": "2.1.6", "text": "Accessories Section — UI design", "team": "design", "done": true },
+            { "id": "2.1.7", "text": "Second Hand Car Page — UI design", "team": "design", "done": true },
+            { "id": "2.1.8", "text": "Car Plate — UI design", "team": "design", "done": true },
+            { "id": "2.1.9", "text": "Workshop — UI design", "team": "design", "done": true },
+            { "id": "2.1.10", "text": "Charge-EV — UI design", "team": "design", "done": true },
+            { "id": "2.1.11", "text": "Chat — UI design", "team": "design", "done": true },
+            { "id": "2.1.12", "text": "Community Group — UI design", "team": "design", "done": true },
+            { "id": "2.1.13", "text": "Review & Report — UI design", "team": "design", "done": true },
+            { "id": "2.1.14", "text": "User Profile — UI design", "team": "design", "done": true },
+            { "id": "2.1.15", "text": "Component library — UI design", "team": "design", "done": true }
+          ]
+        },
+        {
+          "id": "2.2",
+          "name": "Buyer App core modules",
+          "weeks": "Weeks 9–12",
+          "exit": "A buyer can register, add a car, and find compatible parts on staging.",
+          "tasks": [
+            { "id": "2.2.1", "text": "Splash Screen + Login Page — buyer login and registration", "team": "fe" },
+            { "id": "2.2.2", "text": "User Profile — profile, settings, and addresses", "team": "fe" },
+            { "id": "2.2.3", "text": "Landing Page — home and car model list flow", "team": "fe" },
+            { "id": "2.2.4", "text": "Car Model List Overlay — brand/series/variant/year picker and My Cars", "team": "fe" },
+            { "id": "2.2.5", "text": "Category List — category browsing in English and Chinese", "team": "fe" },
+            { "id": "2.2.6", "text": "Spare Parts — listing, detail, compatibility badge, search, filters", "team": "fe" },
+            { "id": "2.2.7", "text": "Accessories Section — listing, detail, search, filters", "team": "fe" },
+            { "id": "2.2.8", "text": "Wishlist and favourites", "team": "fe" },
+            { "id": "2.2.9", "text": "Review & Report — reviews and report submission", "team": "fe" }
+          ]
+        },
+        {
+          "id": "2.3",
+          "name": "Buyer App extended modules",
+          "weeks": "Weeks 11–16",
+          "exit": "All buyer journeys work end-to-end against the staging APIs.",
+          "tasks": [
+            { "id": "2.3.1", "text": "Second Hand Car Page — used-car listing, detail, contact seller", "team": "fe" },
+            { "id": "2.3.2", "text": "Car Plate — listing, detail, contact", "team": "fe" },
+            { "id": "2.3.3", "text": "Workshop — directory and details", "team": "fe" },
+            { "id": "2.3.4", "text": "Charge-EV — EV charging stations", "team": "fe" },
+            { "id": "2.3.5", "text": "Community Group — community links", "team": "fe" },
+            { "id": "2.3.6", "text": "Seller storefront view", "team": "fe" },
+            { "id": "2.3.7", "text": "Chat — buyer chat with product/order cards", "team": "fe" },
+            { "id": "2.3.8", "text": "Chat — escrow payment-link opening and payment-status display", "team": "fe" },
+            { "id": "2.3.9", "text": "Orders — list, detail, tracking, cancel/refund/return requests", "team": "fe" },
+            { "id": "2.3.10", "text": "Buyer notifications", "team": "fe" },
+            { "id": "2.3.11", "text": "Loading, empty, error, offline, and expired-link states", "team": "fe" }
+          ]
+        },
+        {
+          "id": "2.4",
+          "name": "Buyer platform APIs",
+          "weeks": "Weeks 9–14",
+          "exit": "All buyer flows are supported by documented APIs.",
+          "tasks": [
+            { "id": "2.4.1", "text": "Buyer profile and My Cars APIs", "team": "be" },
+            { "id": "2.4.2", "text": "Catalogue browsing, keyword search, filters, sorting, pagination", "team": "be" },
+            { "id": "2.4.3", "text": "Compatibility-filtered search for the selected car", "team": "be" },
+            { "id": "2.4.4", "text": "Wishlist, review, and report APIs", "team": "be" },
+            { "id": "2.4.5", "text": "Used-car, car-plate, workshop, EV-charging, and community APIs", "team": "be" },
+            { "id": "2.4.6", "text": "Buyer chat and seller storefront APIs", "team": "be" },
+            { "id": "2.4.7", "text": "Buyer order lifecycle: view, cancel, refund/return requests", "team": "be" },
+            { "id": "2.4.8", "text": "Escrow link status events and provider webhook consumption", "team": "be" },
+            { "id": "2.4.9", "text": "Buyer notification APIs", "team": "be" }
+          ]
+        },
+        {
+          "id": "2.5",
+          "name": "Minimal admin dashboard",
+          "weeks": "Weeks 13–16",
+          "exit": "Operations can manage users, sellers, listings, and exceptions without database access.",
+          "tasks": [
+            { "id": "2.5.1", "text": "Admin authentication, roles, permissions, and audit logs", "team": "be" },
+            { "id": "2.5.2", "text": "User and seller management with verification approval", "team": "be" },
+            { "id": "2.5.3", "text": "Product, listing, and content moderation APIs", "team": "be" },
+            { "id": "2.5.4", "text": "Order, escrow-exception, and tracking-exception views", "team": "be" },
+            { "id": "2.5.5", "text": "Admin web UI for the approved minimal scope", "team": "fe" }
+          ]
+        },
+        {
+          "id": "2.6",
+          "name": "Gate 2 — Buyer App internal beta",
+          "weeks": "Weeks 15–16",
+          "exit": "Management signs off the full buyer-to-seller journey on the internal beta.",
+          "tasks": [
+            { "id": "2.6.1", "text": "Cross-app integration testing of the full buyer↔seller journey", "team": "fe" },
+            { "id": "2.6.2", "text": "Fix integration defects found in buyer-flow testing", "team": "be" },
+            { "id": "2.6.3", "text": "Distribute the Buyer App internal beta", "team": "infra" },
+            { "id": "2.6.4", "text": "End-to-end demo: browse → chat → escrow payment → ship → track → complete", "team": "pm" },
+            { "id": "2.6.5", "text": "Management review and Phase 2 sign-off", "team": "pm" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "p3",
+      "name": "Phase 3 · UAT & Launch",
+      "time": "Months 5–6 · 4 Nov – 18 Dec 2026 · Release by 20 Dec 2026",
+      "goal": "Harden both apps, run PM-led UAT, and release to production by the 20 December 2026 target.",
+      "milestones": [
+        {
+          "id": "3.1",
+          "name": "Integration & regression",
+          "weeks": "Weeks 17–18",
+          "exit": "No open critical or high defects from regression.",
+          "tasks": [
+            { "id": "3.1.1", "text": "Full regression of both apps on the agreed device/OS matrix", "team": "fe" },
+            { "id": "3.1.2", "text": "API contract validation against the OpenAPI specification", "team": "be" },
+            { "id": "3.1.3", "text": "Defect triage and fix cycle — frontend", "team": "fe" },
+            { "id": "3.1.4", "text": "Defect triage and fix cycle — backend", "team": "be" },
+            { "id": "3.1.5", "text": "English/Chinese localization QA", "team": "pm" },
+            { "id": "3.1.6", "text": "UI polish and accessibility pass", "team": "fe" }
+          ]
+        },
+        {
+          "id": "3.2",
+          "name": "Security & performance",
+          "weeks": "Weeks 18–19",
+          "exit": "Security and performance findings are resolved or formally accepted.",
+          "tasks": [
+            { "id": "3.2.1", "text": "Security review: authorization, ownership, uploads, rate limits", "team": "be" },
+            { "id": "3.2.2", "text": "Webhook signature, idempotency, and duplicate-callback testing", "team": "be" },
+            { "id": "3.2.3", "text": "Abuse-case testing: chat abuse, arbitrary links, injection", "team": "be" },
+            { "id": "3.2.4", "text": "Load testing: search, chat, and order APIs", "team": "infra" },
+            { "id": "3.2.5", "text": "App performance profiling: startup, lists, media", "team": "fe" }
+          ]
+        },
+        {
+          "id": "3.3",
+          "name": "User acceptance testing",
+          "weeks": "Weeks 19–21",
+          "exit": "Business signs off the UAT results.",
+          "tasks": [
+            { "id": "3.3.1", "text": "Prepare UAT scripts and acceptance criteria", "team": "pm" },
+            { "id": "3.3.2", "text": "UAT round 1: buyer, seller, and admin journeys", "team": "pm" },
+            { "id": "3.3.3", "text": "Fix UAT round 1 defects — frontend", "team": "fe" },
+            { "id": "3.3.4", "text": "Fix UAT round 1 defects — backend", "team": "be" },
+            { "id": "3.3.5", "text": "UAT round 2 and regression confirmation", "team": "pm" },
+            { "id": "3.3.6", "text": "Business sign-off on UAT results", "team": "pm" }
+          ]
+        },
+        {
+          "id": "3.4",
+          "name": "Launch preparation & release",
+          "weeks": "Weeks 21–22",
+          "exit": "Both apps are approved in the stores and released to production by 20 Dec 2026.",
+          "tasks": [
+            { "id": "3.4.1", "text": "Production infrastructure, monitoring, alerts, backup/restore", "team": "infra" },
+            { "id": "3.4.2", "text": "Escrow reconciliation check in the staging environment", "team": "be" },
+            { "id": "3.4.3", "text": "Production data seeding: vehicles, categories, initial content", "team": "be" },
+            { "id": "3.4.9", "text": "Store listing materials (Google Play & App Store) — designed and handed to frontend", "team": "design", "done": true },
+            { "id": "3.4.4", "text": "Store listings, screenshots, and privacy declarations", "team": "pm" },
+            { "id": "3.4.5", "text": "App Store and Play Store review submissions", "team": "fe" },
+            { "id": "3.4.6", "text": "Migration rehearsal and rollback plan", "team": "infra" },
+            { "id": "3.4.7", "text": "Launch checklist and go / no-go decision", "team": "pm" },
+            { "id": "3.4.8", "text": "Public release of the Seller App and Buyer App", "team": "pm" }
+          ]
+        }
+      ]
+    }
+  ]
+}
